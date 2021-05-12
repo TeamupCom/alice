@@ -108,8 +108,14 @@ class ArrayAdd implements MethodInterface
      */
     private function detectSingularizeMethod()
     {
+        if (class_exists('Symfony\Component\String\Inflector\EnglishInflector')) {
+            $inflector = new \Symfony\Component\String\Inflector\EnglishInflector();
+            $this->singularizer = [$inflector, 'singularize'];
+
+            return;
+        }
+        
         $classes = [
-            'Symfony\Component\Inflector\Inflector' => 'singularize',
             'Symfony\Component\PropertyAccess\StringUtil' => 'singularify',
             'Symfony\Component\Form\Util\FormUtil' => 'singularify',
             'Doctrine\Common\Inflector\Inflector' => 'singularize',
