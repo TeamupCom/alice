@@ -73,15 +73,15 @@ class FixturesTest extends TestCase
         foreach($objects as $object) {
 
             $this->assertContains($object->email, ['A','B','C','D','E','F']);
-            $this->assertFalse(in_array($object->username, $usernames), sprintf('duplicate username value %s', $object->username));
-            $this->assertFalse(in_array($object->fullname, $fullnames), sprintf('duplicate fullname value %s', $object->fullname));
+            $this->assertNotContains($object->username, $usernames, sprintf('duplicate username value %s', $object->username));
+            $this->assertNotContains($object->fullname, $fullnames, sprintf('duplicate fullname value %s', $object->fullname));
 
             $usernames[] = $object->username;
             $fullnames[] = $object->fullname;
         }
     }
 
-    public function testLoadLoadsYamlFilesAndDoctrinePersister()
+    public function testLoadLoadsYamlFilesAndDoctrinePersister(): void
     {
         $om = $this->getDoctrineManagerMock(14);
         $objects = Fixtures::load(__DIR__.'/support/fixtures/complete.yml', $om, ['providers' => [$this]]);
@@ -153,7 +153,7 @@ class FixturesTest extends TestCase
                 'locale'    => 'en_US',
                 'seed'      => 1,
                 'providers' => [
-                    new \Nelmio\Alice\FooProvider()
+                    new FooProvider()
                 ]
             ],
             // check that loader isn't created twice for the same options
@@ -268,7 +268,7 @@ class FixturesTest extends TestCase
         );
     }
 
-    public function testLoadLoadsYamlFilesAsArray()
+    public function testLoadLoadsYamlFilesAsArray(): void
     {
         $om = $this->getDoctrineManagerMock(14);
         $objects = Fixtures::load([__DIR__.'/support/fixtures/complete.yml'], $om, ['providers' => [$this]]);
@@ -276,7 +276,7 @@ class FixturesTest extends TestCase
         $this->assertCount(14, $objects);
     }
 
-    public function testLoadLoadsYamlFilesAsGlobString()
+    public function testLoadLoadsYamlFilesAsGlobString(): void
     {
         $om = $this->getDoctrineManagerMock(14);
         $objects = Fixtures::load(__DIR__.'/support/fixtures/complete.y*', $om, ['providers' => [$this]]);
@@ -284,7 +284,7 @@ class FixturesTest extends TestCase
         $this->assertCount(14, $objects);
     }
 
-    public function testLoadLoadsArrays()
+    public function testLoadLoadsArrays(): void
     {
         $om = $this->getDoctrineManagerMock(2);
 
@@ -311,7 +311,7 @@ class FixturesTest extends TestCase
         $this->assertEquals(42, $user->favoriteNumber);
     }
 
-    public function testLoadLoadsPHPfiles()
+    public function testLoadLoadsPHPfiles(): void
     {
         $om = $this->getDoctrineManagerMock(2);
 
@@ -325,12 +325,10 @@ class FixturesTest extends TestCase
         $this->assertEquals(42, $user->favoriteNumber);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testLoadWithLogger()
+    public function testLoadWithLogger(): void
     {
-        $om = $this->getMockBuilder(ObjectManager::class)->getMock();
+        $this->expectException(\RuntimeException::class);
+        $om = $this->createStub(ObjectManager::class);
 
         Fixtures::load(__DIR__.'/support/fixtures/basic.php', $om, [
             'logger' => function () {}
@@ -345,7 +343,7 @@ class FixturesTest extends TestCase
         }
     }
 
-    public function testMakesOnlyOneFlushWithPersistOnce()
+    public function testMakesOnlyOneFlushWithPersistOnce(): void
     {
         $om = $this->getDoctrineManagerMock(19);
         $objects = Fixtures::load(
@@ -379,31 +377,31 @@ class FixturesTest extends TestCase
 
     protected function getDoctrineManagerMock($objects = null)
     {
-        $om = $this->getMockBuilder(ObjectManager::class)->getMock();
-        $metadataFactory = $this->getMockBuilder(ClassMetadataFactory::class)->getMock();
-        $metadata1 = $this->getMockBuilder(ClassMetadata::class)->getMock();
-        $metadata2 = $this->getMockBuilder(ClassMetadata::class)->getMock();
-        $metadata3 = $this->getMockBuilder(ClassMetadata::class)->getMock();
+        $om = $this->createMock(ObjectManager::class);
+        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $metadata1 = $this->createMock(ClassMetadata::class);
+        $metadata2 = $this->createMock(ClassMetadata::class);
+        $metadata3 = $this->createMock(ClassMetadata::class);
 
         $om->expects($this->once())
             ->method('getMetadataFactory')
-            ->will($this->returnValue($metadataFactory));
+            ->willReturn($metadataFactory);
 
         $metadataFactory->expects($this->once())
             ->method('getAllMetadata')
-            ->will($this->returnValue([$metadata1, $metadata2, $metadata3]));
+            ->willReturn([$metadata1, $metadata2, $metadata3]);
 
         $metadata1->expects($this->once())
             ->method('getName')
-            ->will($this->returnValue(self::USER));
+            ->willReturn(self::USER);
 
         $metadata2->expects($this->once())
             ->method('getName')
-            ->will($this->returnValue(self::CONTACT));
+            ->willReturn(self::CONTACT);
 
         $metadata3->expects($this->once())
             ->method('getName')
-            ->will($this->returnValue(self::GROUP));
+            ->willReturn(self::GROUP);
 
         $om->expects($objects ? $this->exactly($objects) : $this->any())
             ->method('persist');
@@ -412,7 +410,7 @@ class FixturesTest extends TestCase
             ->method('flush');
 
         $om->expects($this->once())
-            ->method('find')->will($this->returnValue(new User()));
+            ->method('find')->willReturn(new User());
 
         return $om;
     }

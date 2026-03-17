@@ -11,38 +11,35 @@
 
 namespace Nelmio\Alice\Fixtures\Builder;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Nelmio\Alice\Fixtures\Builder\Methods\MethodInterface;
 use Nelmio\Alice\Fixtures\Fixture;
 use Nelmio\Alice\Fixtures\Loader;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
+use Nelmio\Alice\support\models\User;
 
-/**
- * @covers \Nelmio\Alice\Fixtures\Builder\Builder
- */
+#[CoversClass(Builder::class)]
 class BuilderTest extends TestCase
 {
     use BuilderProviderTrait;
 
-    const USER = 'Nelmio\Alice\support\models\User';
+    private const USER = User::class;
 
-    /**
-     * @var Builder
-     */
-    private $builder;
+    private Builder $builder;
 
-    public function setUp()
+    public function setUp(): void
     {
         $loader = new Loader();
 
         $loaderReflection = new \ReflectionObject($loader);
         $builderReflection = $loaderReflection->getProperty('builder');
-        $builderReflection->setAccessible(true);
 
         $this->builder = $builderReflection->getValue($loader);
     }
 
-    public function testCanCreateBuilder()
+    public function testCanCreateBuilder(): void
     {
         new Builder([]);
 
@@ -59,15 +56,13 @@ class BuilderTest extends TestCase
         new Builder([$method1, $method2]);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testThrowExeptionIfMethodsAreNotMethods()
+    public function testThrowExeptionIfMethodsAreNotMethods(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
         new Builder([new \stdClass()]);
     }
 
-    public function testAddBuilder()
+    public function testAddBuilder(): void
     {
         $builder = new Builder([]);;
         $builder->addBuilder(new CustomMethod);
@@ -76,109 +71,95 @@ class BuilderTest extends TestCase
         $this->assertEmpty($fixtures[0]->getProperties());
     }
 
-    /**
-     * @dataProvider provideSimpleFixtures
-     */
-    public function testBuildSimpleFixtures($name, $expected)
+    #[DataProvider('provideSimpleFixtures')]
+    public function testBuildSimpleFixtures($name, $expected): void
     {
         $actual = $this->builder->build('Dummy', $name, []);
 
         if (is_array($expected)) {
-            $this->assertTrue(is_array($actual));
+            $this->assertIsArray($actual);
             $this->assertCount(count($expected), $actual);
         } else {
             $this->assertNull($actual);
         }
-        $this->assertEquals($expected, $actual, null, 0.0, 10, true);
+        $this->assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provideListFixtures
-     */
-    public function testBuildListFixtures($name, $expected)
+    #[DataProvider('provideListFixtures')]
+    public function testBuildListFixtures($name, $expected): void
     {
         $actual = $this->builder->build('Dummy', $name, []);
 
         if (is_array($expected)) {
-            $this->assertTrue(is_array($actual));
+            $this->assertIsArray($actual);
             $this->assertCount(count($expected), $actual);
         } else {
             $this->assertNull($actual);
         }
-        $this->assertEquals($expected, $actual, null, 0.0, 10, true);
+        $this->assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provideMalformedListFixtures
-     * @group legacy
-     */
-    public function testBuildMalformedListFixtures($name, $expected)
+    #[Group('legacy')]
+    #[DataProvider('provideMalformedListFixtures')]
+    public function testBuildMalformedListFixtures($name, $expected): void
     {
         $actual = $this->builder->build('Dummy', $name, []);
 
         if (is_array($expected)) {
-            $this->assertTrue(is_array($actual));
+            $this->assertIsArray($actual);
             $this->assertCount(count($expected), $actual);
         } else {
             $this->assertNull($actual);
         }
-        $this->assertEquals($expected, $actual, null, 0.0, 10, true);
+        $this->assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provideSegmentFixtures
-     */
-    public function testBuildSegmentFixtures($name, $expected)
+    #[DataProvider('provideSegmentFixtures')]
+    public function testBuildSegmentFixtures($name, $expected): void
     {
         $actual = $this->builder->build('Dummy', $name, []);
 
         if (is_array($expected)) {
-            $this->assertTrue(is_array($actual));
+            $this->assertIsArray($actual);
             $this->assertCount(count($expected), $actual);
         } else {
             $this->assertNull($actual);
         }
-        $this->assertEquals($expected, $actual, null, 0.0, 10, true);
+        $this->assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provideDeprecatedSegmentFixtures
-     * @group legacy
-     */
-    public function testBuildDeprecatedSegmentFixtures($name, $expected)
+    #[DataProvider('provideDeprecatedSegmentFixtures')]
+    #[Group('legacy')]
+    public function testBuildDeprecatedSegmentFixtures($name, $expected): void
     {
         $actual = $this->builder->build('Dummy', $name, []);
 
         if (is_array($expected)) {
-            $this->assertTrue(is_array($actual));
+            $this->assertIsArray($actual);
             $this->assertCount(count($expected), $actual);
         } else {
             $this->assertNull($actual);
         }
-        $this->assertEquals($expected, $actual, null, 0.0, 10, true);
+        $this->assertEquals($expected, $actual);
     }
 
-    /**
-     * @dataProvider provideMalformedSegmentFixtures
-     * @group legacy
-     */
-    public function testBuildMalformedSegmentFixtures($name, $expected)
+    #[DataProvider('provideMalformedSegmentFixtures')]
+    #[Group('legacy')]
+    public function testBuildMalformedSegmentFixtures($name, $expected): void
     {
         $actual = $this->builder->build('Dummy', $name, []);
 
         if (is_array($expected)) {
-            $this->assertTrue(is_array($actual));
+            $this->assertIsArray($actual);
             $this->assertCount(count($expected), $actual);
         } else {
             $this->assertNull($actual);
         }
-        $this->assertEquals($expected, $actual, null, 0.0, 10, true);
+        $this->assertEquals($expected, $actual);
     }
 
-    /**
-     * @group legacy
-     */
-    public function testReturnsNullWhenCannotBuildAFixture()
+    #[Group('legacy')]
+    public function testReturnsNullWhenCannotBuildAFixture(): void
     {
         $builder = new Builder([]);
         $this->assertNull($builder->build('Dummy', 'dummy', []));
@@ -187,12 +168,12 @@ class BuilderTest extends TestCase
 
 class CustomMethod implements MethodInterface
 {
-    public function canBuild($name)
+    public function canBuild($name): bool
     {
-        return $name == 'spec dumped';
+        return $name === 'spec dumped';
     }
 
-    public function build($class, $name, array $spec)
+    public function build($class, $name, array $spec): array
     {
         return [new Fixture($class, $name, [], null)];
     }

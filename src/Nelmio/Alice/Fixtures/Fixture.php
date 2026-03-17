@@ -43,25 +43,7 @@ class Fixture
     /**
      * @var array
      */
-    protected $nameFlags;
-
-    /**
-     * @var string
-     */
-    protected $valueForCurrent;
-
-    /**
-     * @var array
-     */
-    protected $setProperties = [];
-
-    /**
-     * @param string      $class
-     * @param string      $name
-     * @param array       $spec
-     * @param string|null $valueForCurrent When <current()> is called, this value is used
-     */
-    public function __construct($class, $name, array $spec, $valueForCurrent)
+    public function __construct(string $class, string $name, array $spec, mixed $valueForCurrent)
     {
         list($this->class, $this->classFlags) = FlagParser::parse($class);
         list($this->name, $this->nameFlags) = FlagParser::parse($name);
@@ -392,7 +374,7 @@ class Fixture
     /**
      * @param string $name
      */
-    private function checkName($name)
+    private function checkName(string $name): void
     {
         if (1 === strlen($name) && 1 !== preg_match('/\p{L}/', $name)) {
             @trigger_error(
@@ -407,8 +389,8 @@ class Fixture
             @trigger_error(
                 sprintf(
                     'Fixture references should only be composed of letters, digits, periods ("."), underscores ("_") '
-                    .' and slashes ("/"). The usage of other characters is deprecated since 2.2.0 and will no longer be'
-                    .'supported in Alice 3.0',
+                    .' and slashes ("/"). Found "%s" instead. The usage of other characters is deprecated since 2.2.0 and'
+                    .' will no longer be supported in Alice 3.0',
                     $name
                 ),
                 E_USER_DEPRECATED

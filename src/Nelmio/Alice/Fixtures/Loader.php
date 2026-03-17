@@ -190,7 +190,7 @@ class Loader
      *
      * @param object[] $references Array of object where the key is the name of the reference
      */
-    public function setReferences(array $references)
+    public function setReferences(array $references): void
     {
         $this->objects->clear();
         foreach ($references as $name => $object) {
@@ -200,8 +200,6 @@ class Loader
 
     /**
      * adds a processor for processing extensions
-     *
-     * @param Processor\Methods\MethodInterface $processor
      **/
     public function addProcessor(Processor\Methods\MethodInterface $processor)
     {
@@ -210,8 +208,6 @@ class Loader
 
     /**
      * adds a parser for fixture parsing extensions
-     *
-     * @param Parser\Methods\MethodInterface $parser
      **/
     public function addParser(Parser\Methods\MethodInterface $parser)
     {
@@ -220,8 +216,6 @@ class Loader
 
     /**
      * adds a builder for fixture building extensions
-     *
-     * @param Builder\Methods\MethodInterface $builder
      **/
     public function addBuilder(Builder\Methods\MethodInterface $builder)
     {
@@ -230,8 +224,6 @@ class Loader
 
     /**
      * Adds an instantiator for instantiation extensions.
-     *
-     * @param Instantiator\Methods\MethodInterface $instantiator
      **/
     public function addInstantiator(Instantiator\Methods\MethodInterface $instantiator)
     {
@@ -254,7 +246,7 @@ class Loader
      * @param  string $filename
      * @return array  data
      */
-    protected function parseFile($filename)
+    protected function parseFile(string $filename): ?array
     {
         return $this->parser->parse($filename);
     }
@@ -265,7 +257,7 @@ class Loader
      * @param  array     $rawData
      * @return Fixture[]
      */
-    protected function buildFixtures(array $rawData)
+    protected function buildFixtures(array $rawData): array
     {
         $fixtures = [];
 
@@ -284,7 +276,7 @@ class Loader
      *
      * @param Fixture[] $fixtures
      */
-    protected function instantiateFixtures(array $fixtures)
+    protected function instantiateFixtures(array $fixtures): void
     {
         foreach ($fixtures as $fixture) {
             $this->objects->set(

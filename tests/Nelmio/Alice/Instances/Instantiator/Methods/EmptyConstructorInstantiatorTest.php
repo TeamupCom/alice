@@ -24,12 +24,12 @@ class EmptyConstructorInstantiatorTest extends TestCase
      */
     private $instantiator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->instantiator = new EmptyConstructor();
     }
 
-    public function testIsAnInstantiatorMethod()
+    public function testIsAnInstantiatorMethod(): void
     {
         $this->assertTrue(
             is_a(
@@ -40,66 +40,64 @@ class EmptyConstructorInstantiatorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideFixtures
-     */
-    public function testCanInstantiateObjectWithDefaultConstructor(Fixture $fixture, $expected)
+    #[DataProvider('provideFixtures')]
+    public function testCanInstantiateObjectWithDefaultConstructor(Fixture $fixture, bool $expected): void
     {
         $actual = $this->instantiator->canInstantiate($fixture);
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function testInstantiateFixture()
+    public function testInstantiateFixture(): void
     {
         $class = 'stdClass';
-        $fixture = $this->createFixtureForClass($class);
+        $fixture = self::createFixtureForClass($class);
         $this->instantiator->canInstantiate($fixture);
         $actual = $this->instantiator->instantiate($fixture);
 
         $this->assertInstanceOf($class, $actual);
 
-        $class = 'Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithDefaultConstructor';
-        $fixture = $this->createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithDefaultConstructor');
+        $class = DummyWithDefaultConstructor::class;
+        $fixture = self::createFixtureForClass(DummyWithDefaultConstructor::class);
         $this->instantiator->canInstantiate($fixture);
         $actual = $this->instantiator->instantiate($fixture);
 
         $this->assertInstanceOf($class, $actual);
     }
 
-    public function provideFixtures()
+    public static function provideFixtures(): array
     {
         $returned = [];
 
         $returned['default constructor'] = [
-            $this->createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithDefaultConstructor'),
+            self::createFixtureForClass(DummyWithDefaultConstructor::class),
             true,
         ];
 
         $returned['explicit default constructor'] = [
-            $this->createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithExplicitDefaultConstructor'),
+            self::createFixtureForClass(DummyWithExplicitDefaultConstructor::class),
             true,
         ];
 
         $returned['constructor with optional parameter'] = [
-            $this->createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithOptionalParameterInConstructor'),
+            self::createFixtureForClass(DummyWithOptionalParameterInConstructor::class),
             true,
         ];
 
 
         $returned['private constructor'] = [
-            $this->createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithPrivateConstructor'),
+            self::createFixtureForClass(DummyWithPrivateConstructor::class),
             false,
         ];
 
         $returned['protected constructor'] = [
-            $this->createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithProtectedConstructor'),
+            self::createFixtureForClass(DummyWithProtectedConstructor::class),
             false,
         ];
 
         $returned['named constructor'] = [
             new Fixture(
-                'Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithNamedConstructor',
+                DummyWithNamedConstructor::class,
                 'dummy',
                 [
                     '__construct' => [
@@ -112,12 +110,12 @@ class EmptyConstructorInstantiatorTest extends TestCase
         ];
 
         $returned['constructor with required parameter'] = [
-            $this->createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithRequiredParameterInConstructor'),
+            self::createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithRequiredParameterInConstructor'),
             false,
         ];
 
         $returned['constructor with optional and required parameter'] = [
-            $this->createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithOptionalAndRequiredParameterInConstructor'),
+            self::createFixtureForClass('Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithOptionalAndRequiredParameterInConstructor'),
             false,
         ];
 
@@ -125,11 +123,9 @@ class EmptyConstructorInstantiatorTest extends TestCase
     }
 
     /**
-     * @param string $class FQCN
-     *
-     * @return Fixture
+     * @param class-string $class
      */
-    private function createFixtureForClass($class)
+    private static function createFixtureForClass(string $class): Fixture
     {
         return new Fixture($class, 'dummy', [], null);
     }

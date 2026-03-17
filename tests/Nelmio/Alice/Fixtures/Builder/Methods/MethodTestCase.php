@@ -23,22 +23,22 @@ abstract class MethodTestCase extends TestCase
      */
     protected $method;
 
-    public function testIsABuilderMethod()
+    public function testIsABuilderMethod(): void
     {
-        $this->assertInstanceOf('Nelmio\Alice\Fixtures\Builder\Methods\MethodInterface', $this->method);
+        $this->assertInstanceOf(MethodInterface::class, $this->method);
     }
 
-    abstract public function testCanBuildSimpleFixtures($name);
+    abstract public function testCanBuildSimpleFixtures(string $name, array $cases);
 
-    abstract public function testCanBuildListFixtures($name);
+    abstract public function testCanBuildListFixtures(string $name, array $cases);
 
-    abstract public function testCanBuildMalformedListFixtures($name);
+    abstract public function testCanBuildMalformedListFixtures(string $name, array $cases);
 
-    abstract public function testCanBuildSegmentFixtures($name);
+    abstract public function testCanBuildSegmentFixtures(string $name, array $cases);
 
-    abstract public function testCanBuildDeprecatedSegmentFixtures($name);
+    abstract public function testCanBuildDeprecatedSegmentFixtures(string $name, ?array $cases);
 
-    abstract public function testCanBuildMalformedSegmentFixtures($name);
+    abstract public function testCanBuildMalformedSegmentFixtures(string $name, ?array $cases);
 
     abstract public function testBuildSimpleFixtures($name, $expected);
 
@@ -55,7 +55,7 @@ abstract class MethodTestCase extends TestCase
     /**
      * @param string $name Reference name
      */
-    public function assertCanBuild($name)
+    public function assertCanBuild(string $name): void
     {
         $actual = $this->method->canBuild($name);
 
@@ -65,28 +65,28 @@ abstract class MethodTestCase extends TestCase
     /**
      * @param string $name Reference name
      */
-    public function assertCannotBuild($name)
+    public function assertCannotBuild(string $name): void
     {
         $actual = $this->method->canBuild($name);
 
         $this->assertFalse($actual);
     }
 
-    public function assertBuiltResultIsTheSame($name, $expected)
+    public function assertBuiltResultIsTheSame(string $name, ?array $expected): void
     {
         $this->assertTrue($this->method->canBuild($name));
         $actual = $this->method->build('Dummy', $name, []);
 
         if (is_array($expected)) {
-            $this->assertTrue(is_array($actual));
+            $this->assertIsArray($actual);
             $this->assertCount(count($expected), $actual);
         } else {
             $this->assertNull($actual);
         }
-        $this->assertEquals($expected, $actual, null, 0.0, 10, true);
+        $this->assertEquals($expected, $actual);
     }
 
-    public function markAsInvalidCase()
+    public function markAsInvalidCase(): void
     {
         $this->assertTrue(true, 'Invalid scenario.');
     }

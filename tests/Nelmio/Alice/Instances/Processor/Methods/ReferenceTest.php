@@ -11,12 +11,12 @@
 
 namespace Nelmio\Alice\Instances\Processor\Methods;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use Nelmio\Alice\Instances\Processor\Processable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Nelmio\Alice\Instances\Processor\Methods\Reference
- */
+#[CoversClass(Reference::class)]
 class ReferenceTest extends TestCase
 {
     /**
@@ -24,15 +24,13 @@ class ReferenceTest extends TestCase
      */
     private $method;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->method = new Reference();
     }
 
-    /**
-     * @dataProvider provideValues
-     */
-    public function testCanProcess($value, $parts)
+    #[DataProvider('provideValues')]
+    public function testCanProcess($value, $parts): void
     {
         $processable = new Processable($value);
         $this->method->canProcess($processable);
@@ -42,7 +40,7 @@ class ReferenceTest extends TestCase
         }
     }
 
-    public function provideValues()
+    public static function provideValues()
     {
         return [
             // nominal

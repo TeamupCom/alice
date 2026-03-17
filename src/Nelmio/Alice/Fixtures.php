@@ -99,7 +99,7 @@ class Fixtures
                 throw new \InvalidArgumentException('Unknown persister type '.get_class($persister));
         }
 
-        $fixtures = new static($_persister, $options, $processors);
+        $fixtures = new self($_persister, $options, $processors);
 
         return $fixtures->loadFiles($files);
     }

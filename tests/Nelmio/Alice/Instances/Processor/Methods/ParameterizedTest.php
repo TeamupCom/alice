@@ -11,13 +11,13 @@
 
 namespace Nelmio\Alice\Instances\Processor\Methods;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use Nelmio\Alice\Fixtures\ParameterBag;
 use Nelmio\Alice\Instances\Processor\Processable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Nelmio\Alice\Instances\Processor\Methods\Parameterized
- */
+#[CoversClass(Parameterized::class)]
 class ParameterizedTest extends TestCase
 {
     /**
@@ -25,27 +25,25 @@ class ParameterizedTest extends TestCase
      */
     private $method;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->method = new Parameterized(new ParameterBag());
     }
 
-    public function testIsAProcessorMethod()
+    public function testIsAProcessorMethod(): void
     {
         $this->assertInstanceOf('Nelmio\Alice\Instances\Processor\Methods\MethodInterface', $this->method);
     }
 
-    /**
-     * @dataProvider provideProcessables
-     */
-    public function testCanProcess($processable, $expected)
+    #[DataProvider('provideProcessables')]
+    public function testCanProcess($processable, $expected): void
     {
         $actual = $this->method->canProcess($processable);
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function testProcessSimpleParameter()
+    public function testProcessSimpleParameter(): void
     {
         $parameters = new ParameterBag([
             'foo' => 'bar',
@@ -61,11 +59,9 @@ class ParameterizedTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    /**
-     * @expectedException \UnexpectedValueException
-     */
-    public function testThrowExceptionIfNoParameterKeyFound()
+    public function testThrowExceptionIfNoParameterKeyFound(): void
     {
+        $this->expectException(\UnexpectedValueException::class);
         $parameters = new ParameterBag([]);
         $method = new Parameterized($parameters);
 
@@ -74,11 +70,9 @@ class ParameterizedTest extends TestCase
         $method->process($processable, []);
     }
 
-    /**
-     * @expectedException \UnexpectedValueException
-     */
-    public function testThrowExceptionIfParameterNotFound()
+    public function testThrowExceptionIfParameterNotFound(): void
     {
+        $this->expectException(\UnexpectedValueException::class);
         $parameters = new ParameterBag([]);
         $method = new Parameterized($parameters);
 
@@ -87,7 +81,7 @@ class ParameterizedTest extends TestCase
         $method->process($processable, []);
     }
 
-    public function provideProcessables()
+    public static function provideProcessables()
     {
         return [
             'regular' => [

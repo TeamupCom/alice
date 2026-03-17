@@ -59,7 +59,6 @@ class Direct implements MethodInterface
                     E_USER_DEPRECATED
                 );
             }
-            $refl->setAccessible(true);
             $refl->invoke($object, $value);
 
             return;

@@ -106,7 +106,7 @@ class ArrayAdd implements MethodInterface
     /**
      * Tries to detect a singularize method that is available.
      */
-    private function detectSingularizeMethod()
+    private function detectSingularizeMethod(): void
     {
         if (class_exists('Symfony\Component\String\Inflector\EnglishInflector')) {
             $inflector = new \Symfony\Component\String\Inflector\EnglishInflector();

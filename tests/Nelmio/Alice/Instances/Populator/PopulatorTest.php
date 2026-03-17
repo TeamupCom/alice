@@ -11,6 +11,8 @@
 
 namespace Nelmio\Alice\Instances\Populator;
 
+use Nelmio\Alice\support\models\User;
+use PHPUnit\Framework\Attributes\Group;
 use Nelmio\Alice\Fixtures\Fixture;
 use Nelmio\Alice\Fixtures\ParameterBag;
 use Nelmio\Alice\Instances\Collection;
@@ -49,11 +51,11 @@ class PopulatorTest extends TestCase
         return $this->populator = new Populator($options['objects'], $options['processor'], $options['methods']);
     }
 
-    public function testAddPopulator()
+    public function testAddPopulator(): void
     {
         $class = self::CONTACT;
         $fixture = new Fixture($class, 'test', [ 'magicProp' => 'magicValue' ], null);
-        $object = new $class(new \Nelmio\Alice\support\models\User);
+        $object = new $class(new User);
 
         $this->createPopulator([ 'objects' => new Collection([ 'test' => $object ]) ]);
         $this->populator->addPopulator(new CustomPopulator);
@@ -61,19 +63,17 @@ class PopulatorTest extends TestCase
         $this->assertEquals('magicValue set by magic setter', $object->magicProp);
     }
 
-    /**
-     * @expectedException        InvalidArgumentException
-     * @expectedExceptionMessage All setters passed into Populator must implement MethodInterface.
-     */
-    public function testOnlyMethodInterfacesCanBeUsedToInstantiateThePopulator()
+    public function testOnlyMethodInterfacesCanBeUsedToInstantiateThePopulator(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("All setters passed into Populator must implement MethodInterface.");
         $populator = $this->createPopulator(['methods' => ['CustomPopulator']]);
     }
 
     /**
      * @TODO https://github.com/nelmio/alice/pull/220#issuecomment-113524513
      */
-    public function testArrayAdd()
+    public function testArrayAdd(): void
     {
         $class = self::PLURAL;
         $fixture = new Fixture($class, 'test', [ 'fields' => ['a', 'b', 'c'], 'properties' => ['q', 'w', 'e'] ], null);
@@ -87,10 +87,8 @@ class PopulatorTest extends TestCase
         $this->assertEquals(['q', 'w', 'e'], $object->getProperties());
     }
 
-    /**
-     * @group legacy
-     */
-    public function testSettingPrivatePropertiesDirectly()
+    #[Group('legacy')]
+    public function testSettingPrivatePropertiesDirectly(): void
     {
         $class = self::PLURAL;
         $fixture = new Fixture($class, 'test', [ 'fields' => 'a', 'properties' => 'b' ], null);

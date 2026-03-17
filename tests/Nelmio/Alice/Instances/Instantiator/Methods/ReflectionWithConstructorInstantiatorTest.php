@@ -11,14 +11,13 @@
 
 namespace Nelmio\Alice\Instances\Instantiator\Methods;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Nelmio\Alice\Instances\Instantiator\Methods\ReflectionWithConstructor
- */
+#[CoversClass(ReflectionWithConstructor::class)]
 class ReflectionWithConstructorInstantiatorTest extends TestCase
 {
-    public function testIsAnInstantiatorMethod()
+    public function testIsAnInstantiatorMethod(): void
     {
         $this->assertTrue(
             is_a(

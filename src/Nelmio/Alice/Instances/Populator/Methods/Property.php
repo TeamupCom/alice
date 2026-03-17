@@ -37,7 +37,6 @@ class Property implements MethodInterface
 
         }
 
-        $refl->setAccessible(true);
         $refl->setValue($object, $value);
     }
 
@@ -49,12 +48,14 @@ class Property implements MethodInterface
      *
      * @return string
      */
-    private function findClass($class, $property)
+    private function findClass(object|string $class, string $property): object|string|null
     {
         do {
             if (property_exists($class, $property)) {
                 return $class;
             }
         } while ($class = get_parent_class($class));
+
+        return null;
     }
 }

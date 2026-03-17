@@ -238,27 +238,27 @@ final class Reference
         return self::getList('simple');
     }
 
-    public static function getListFixtures()
+    public static function getListFixtures(): array
     {
         return self::getList('list');
     }
 
-    public static function getMalformedListFixtures()
+    public static function getMalformedListFixtures(): array
     {
         return self::getList('malformed-list');
     }
 
-    public static function getSegmentFixtures()
+    public static function getSegmentFixtures(): array
     {
         return self::getList('segment');
     }
 
-    public static function getDeprecatedSegmentFixtures()
+    public static function getDeprecatedSegmentFixtures(): array
     {
         return self::getList('segment-deprecated');
     }
 
-    public static function getMalformedSegmentFixtures()
+    public static function getMalformedSegmentFixtures(): array
     {
         return self::getList('malformed-segment');
     }
@@ -268,7 +268,7 @@ final class Reference
      *
      * @return array
      */
-    private static function getList($name)
+    private static function getList(string $name): array
     {
         if (null === self::$references) {
             new self();

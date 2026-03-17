@@ -14,7 +14,7 @@ class User
     public $friends;
     public $family_name;
 
-    public function __construct($username = null, $email = null, \DateTime $birthDate = null)
+    public function __construct($username = null, $email = null, ?\DateTime $birthDate = null)
     {
         $this->setUsername($username ?: 'tmp-username');
         $this->email = $email;

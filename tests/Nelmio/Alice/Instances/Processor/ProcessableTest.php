@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 class ProcessableTest extends TestCase
 {
-    public function testValueMatchesWillReturnIfTheProcessablesValueMatchesAGivenRegex()
+    public function testValueMatchesWillReturnIfTheProcessablesValueMatchesAGivenRegex(): void
     {
         $processable = new Processable('<username()>');
 
@@ -23,7 +23,7 @@ class ProcessableTest extends TestCase
         $this->assertFalse($processable->valueMatches('/nomatch/'));
     }
 
-    public function testGetMatchWillReturnTheMostRecentMatchIfItExists()
+    public function testGetMatchWillReturnTheMostRecentMatchIfItExists(): void
     {
         $processable = new Processable('<username()>');
 

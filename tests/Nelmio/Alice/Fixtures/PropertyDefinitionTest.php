@@ -15,21 +15,21 @@ use PHPUnit\Framework\TestCase;
 
 class PropertyDefinitionTest extends TestCase
 {
-    public function testWillParseFlagsOutOfName()
+    public function testWillParseFlagsOutOfName(): void
     {
         $definition = new PropertyDefinition('username (unique)', '<username()>');
 
         $this->assertEquals('username', $definition->getName());
     }
 
-    public function testWillRegisterNameFlags()
+    public function testWillRegisterNameFlags(): void
     {
         $definition = new PropertyDefinition('username (unique)', '<username()>');
 
         $this->assertEquals(['unique' => true], $definition->getNameFlags());
     }
 
-    public function testRequiresUniqueWillReturnIfThePropertyIsFlaggedAsUnique()
+    public function testRequiresUniqueWillReturnIfThePropertyIsFlaggedAsUnique(): void
     {
         $nonuniqueDefinition = new PropertyDefinition('username', '<username()>');
         $uniqueDefinition = new PropertyDefinition('username (unique)', '<username()>');
@@ -38,28 +38,28 @@ class PropertyDefinitionTest extends TestCase
         $this->assertTrue($uniqueDefinition->requiresUnique());
     }
 
-    public function testIsBasicWillReturnFalseIfThePropertyIsAConstructor()
+    public function testIsBasicWillReturnFalseIfThePropertyIsAConstructor(): void
     {
         $definition = new PropertyDefinition('__construct', ['1', '2']);
 
         $this->assertFalse($definition->isBasic());
     }
 
-    public function testIsBasicWillReturnFalseIfThePropertyIsASetter()
+    public function testIsBasicWillReturnFalseIfThePropertyIsASetter(): void
     {
         $definition = new PropertyDefinition('__set', 'setterFunc');
 
         $this->assertFalse($definition->isBasic());
     }
 
-    public function testIsBasicWillReturnTrueIfTheDefinitionRepresentsAValue()
+    public function testIsBasicWillReturnTrueIfTheDefinitionRepresentsAValue(): void
     {
         $definition = new PropertyDefinition('username', '<username()>');
 
         $this->assertTrue($definition->isBasic());
     }
 
-    public function testIsConstructorWillReturnIfTheDefinitionIsTheConstructor()
+    public function testIsConstructorWillReturnIfTheDefinitionIsTheConstructor(): void
     {
         $constructorDef = new PropertyDefinition('__construct', ['1', '2']);
         $normalDef = new PropertyDefinition('username', '<username()>');
@@ -68,7 +68,7 @@ class PropertyDefinitionTest extends TestCase
         $this->assertFalse($normalDef->isConstructor());
     }
 
-    public function testIsCustomSetterWillReturnIfTheDefinitionIsACustomSetter()
+    public function testIsCustomSetterWillReturnIfTheDefinitionIsACustomSetter(): void
     {
         $setterDef = new PropertyDefinition('__set', 'setterFunc');
         $normalDef = new PropertyDefinition('username', '<username()>');

@@ -21,11 +21,9 @@ use PHPUnit\Framework\TestCase;
 
 class ReferenceRangeNameTest extends TestCase
 {
-    /**
-     * @expectedException \UnexpectedValueException
-     */
-    public function testThrowExceptionWhenReferencesAreNotFound()
+    public function testThrowExceptionWhenReferencesAreNotFound(): void
     {
+        $this->expectException(\UnexpectedValueException::class);
         $managerMock = $this->getDoctrineManagerMock();
 
         $files = [
@@ -35,11 +33,9 @@ class ReferenceRangeNameTest extends TestCase
         Fixtures::load($files, $managerMock, [ 'providers' => [ $this ] ]);
     }
 
-    /**
-     * @expectedException \UnexpectedValueException
-     */
-    public function testThrowExceptionWhenSelfReferencesAreNotFound()
+    public function testThrowExceptionWhenSelfReferencesAreNotFound(): void
     {
+        $this->expectException(\UnexpectedValueException::class);
         $managerMock = $this->getDoctrineManagerMock();
 
         $files = [
@@ -49,7 +45,7 @@ class ReferenceRangeNameTest extends TestCase
         Fixtures::load($files, $managerMock, [ 'providers' => [ $this ] ]);
     }
 
-    public function testLoadFixturesByReference()
+    public function testLoadFixturesByReference(): void
     {
         $managerMock = $this->getDoctrineManagerMock();
 
@@ -90,7 +86,7 @@ class ReferenceRangeNameTest extends TestCase
         $this->assertInstanceOf(Task::class, $taskList1);
     }
 
-    public function testLoadFixturesByReferenceWithRangeList()
+    public function testLoadFixturesByReferenceWithRangeList(): void
     {
         $managerMock = $this->getDoctrineManagerMock();
 
@@ -124,12 +120,12 @@ class ReferenceRangeNameTest extends TestCase
 
         $managerMock
             ->method('getMetadataFactory')
-            ->will($this->returnValue($metadataFactoryMock))
+            ->willReturn($metadataFactoryMock)
         ;
 
         $metadataFactoryMock
             ->method('getAllMetadata')
-            ->will($this->returnValue([$metadataMock]))
+            ->willReturn([$metadataMock])
         ;
 
         $managerMock->method('flush');
