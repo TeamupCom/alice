@@ -1155,8 +1155,8 @@ class LoaderTest extends TestCase
 
         $this->assertCount(1, $res);
         $this->assertInstanceOf(self::USER, $this->loader->getReference('user2'));
-        $this->assertSame($this->loader->getReference('user2')->email, 'base@email.com');
-        $this->assertSame($this->loader->getReference('user2')->fullname, 'testfullname');
+        $this->assertSame('base@email.com', $this->loader->getReference('user2')->email);
+        $this->assertSame('testfullname', $this->loader->getReference('user2')->fullname);
     }
 
     public function testTemplatesAreKeptBetweenFiles(): void
@@ -1167,7 +1167,7 @@ class LoaderTest extends TestCase
         /** @var User $user0 */
         $user0 = $this->loader->getReference('user0');
         $this->assertInstanceOf(self::USER, $user0);
-        $this->assertSame($user0->username, 'Base user');
+        $this->assertSame('Base user', $user0->username);
     }
 
     public function testTemplateCanExtendOtherTemplateObjectsCombinedWithRange(): void
@@ -1190,9 +1190,9 @@ class LoaderTest extends TestCase
         foreach (['user3', 'uzer3'] as $key) {
             $this->assertInstanceOf(self::USER, $this->loader->getReference($key));
 
-            $this->assertSame($this->loader->getReference($key)->email, 'base@email.com');
-            $this->assertSame($this->loader->getReference($key)->favoriteNumber, 2);
-            $this->assertSame($this->loader->getReference($key)->fullname, 'testfullname');
+            $this->assertSame('base@email.com', $this->loader->getReference($key)->email);
+            $this->assertSame(2, $this->loader->getReference($key)->favoriteNumber);
+            $this->assertSame('testfullname', $this->loader->getReference($key)->fullname);
         }
     }
 
@@ -1219,9 +1219,9 @@ class LoaderTest extends TestCase
         foreach (['user3', 'uzer3'] as $key) {
             $this->assertInstanceOf(self::USER, $this->loader->getReference($key));
 
-            $this->assertSame($this->loader->getReference($key)->email, 'base@email.com');
-            $this->assertSame($this->loader->getReference($key)->favoriteNumber, 2);
-            $this->assertSame($this->loader->getReference($key)->fullname, 'testfullname');
+            $this->assertSame('base@email.com', $this->loader->getReference($key)->email);
+            $this->assertSame(2, $this->loader->getReference($key)->favoriteNumber);
+            $this->assertSame('testfullname', $this->loader->getReference($key)->fullname);
         }
     }
 
@@ -1321,8 +1321,8 @@ class LoaderTest extends TestCase
 
         $this->assertCount(1, $res);
         $this->assertInstanceOf(self::USER, $this->loader->getReference('user2'));
-        $this->assertSame($this->loader->getReference('user2')->email, 'base@email.com');
-        $this->assertSame($this->loader->getReference('user2')->favoriteNumber, 42);
+        $this->assertSame('base@email.com', $this->loader->getReference('user2')->email);
+        $this->assertSame(42, $this->loader->getReference('user2')->favoriteNumber);
     }
 
     public function testObjectsInheritProviders(): void
@@ -1341,9 +1341,9 @@ class LoaderTest extends TestCase
 
         $this->assertCount(1, $res);
         $this->assertInstanceOf(self::USER, $this->loader->getReference('user2'));
-        $this->assertNotEquals($this->loader->getReference('user2')->fullname, '<firstName()>');
+        $this->assertNotEquals('<firstName()>', $this->loader->getReference('user2')->fullname);
         $this->assertNotEmpty($this->loader->getReference('user2')->fullname);
-        $this->assertSame($this->loader->getReference('user2')->favoriteNumber, 42);
+        $this->assertSame(42, $this->loader->getReference('user2')->favoriteNumber);
     }
 
     public function testCurrentProviderFailsOutOfRanges(): void

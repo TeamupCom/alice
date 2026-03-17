@@ -23,19 +23,19 @@ class FixturesTest extends TestCase
     const GROUP = 'Nelmio\Alice\support\models\Group';
     const CONTACT = 'Nelmio\Alice\support\models\Contact';
 
-    public function testLoadUniqueFromTemplateFixtures()
+    public function testLoadUniqueFromTemplateFixtures(): void
     {
-        $objectManagerMock = $this->getMockBuilder(ObjectManager::class)->getMock();
-        $metadataFactory = $this->getMockBuilder(ClassMetadataFactory::class)->getMock();
-        $metadata = $this->getMockBuilder(ClassMetadata::class)->getMock();
+        $objectManagerMock = $this->createMock(ObjectManager::class);
+        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $metadata = $this->createStub(ClassMetadata::class);
 
-        $objectManagerMock->expects($this->any())
+        $objectManagerMock
             ->method('getMetadataFactory')
-            ->will($this->returnValue($metadataFactory));
+            ->willReturn($metadataFactory);
 
-        $metadataFactory->expects($this->any())
+        $metadataFactory
             ->method('getAllMetadata')
-            ->will($this->returnValue([$metadata, $metadata, $metadata]));
+            ->willReturn([$metadata, $metadata, $metadata]);
 
         $objects = Fixtures::load(__DIR__.'/support/fixtures/unique_with_template.yml', $objectManagerMock, ['providers' => [$this]]);
 
@@ -44,24 +44,24 @@ class FixturesTest extends TestCase
         $names = [];
         foreach($objects as $object) {
             $this->assertNotNull($object->fullname, 'fullname should not be null');
-            $this->assertFalse(in_array($object->username, $names), sprintf('duplicate value %s', $object->username));
+            $this->assertNotContains($object->username, $names, sprintf('duplicate value %s', $object->username));
             $names[] = $object->username;
         }
     }
 
-    public function testLoadUniqueFromMoreThanOneTemplateFixtures()
+    public function testLoadUniqueFromMoreThanOneTemplateFixtures(): void
     {
-        $objectManagerMock = $this->getMockBuilder(ObjectManager::class)->getMock();
-        $metadataFactory = $this->getMockBuilder(ClassMetadataFactory::class)->getMock();
-        $metadata = $this->getMockBuilder(ClassMetadata::class)->getMock();
+        $objectManagerMock = $this->createMock(ObjectManager::class);
+        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $metadata = $this->createStub(ClassMetadata::class);
 
-        $objectManagerMock->expects($this->any())
+        $objectManagerMock
             ->method('getMetadataFactory')
-            ->will($this->returnValue($metadataFactory));
+            ->willReturn($metadataFactory);
 
-        $metadataFactory->expects($this->any())
+        $metadataFactory
             ->method('getAllMetadata')
-            ->will($this->returnValue([$metadata, $metadata, $metadata]));
+            ->willReturn([$metadata, $metadata, $metadata]);
 
         $objects = Fixtures::load(__DIR__.'/support/fixtures/unique_with_more_templates.yml', $objectManagerMock, ['providers' => [$this], 'seed' => 2]);
 
@@ -107,34 +107,29 @@ class FixturesTest extends TestCase
         $this->assertSame($lastGroup->contactPerson, $contact->getUser());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testLoadFailsOnMissingFiles()
+    public function testLoadFailsOnMissingFiles(): void
     {
-        $om = $this->getMockBuilder(ObjectManager::class)->getMock();
+        $this->expectException(\InvalidArgumentException::class);
+        $om = $this->createStub(ObjectManager::class);
         $objects = Fixtures::load(__DIR__.'/fixtures/missing_file.yml', $om, ['providers' => [$this]]);
     }
 
-    public function testThatNewLoaderIsCreatedForDifferingOptions()
+    public function testThatNewLoaderIsCreatedForDifferingOptions(): void
     {
-        $om = $this->getMockBuilder(ObjectManager::class)->getMock();
-        $metadataFactory = $this->getMockBuilder(ClassMetadataFactory::class)->getMock();
-        $metadata = $this->getMockBuilder(ClassMetadata::class)->getMock();
+        $om = $this->createMock(ObjectManager::class);
+        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $metadata = $this->createStub(ClassMetadata::class);
 
-        $om->expects($this->any())
-            ->method('find')->will($this->returnValue(new User()));
+        $om->method('find')
+            ->willReturn(new User());
+        $om->method('getMetadataFactory')
+            ->willReturn($metadataFactory);
 
-        $om->expects($this->any())
-            ->method('getMetadataFactory')
-            ->will($this->returnValue($metadataFactory));
-
-        $metadataFactory->expects($this->any())
+        $metadataFactory
             ->method('getAllMetadata')
-            ->will($this->returnValue([$metadata, $metadata, $metadata]));
+            ->willReturn([$metadata, $metadata, $metadata]);
 
         $prop = new \ReflectionProperty('\Nelmio\Alice\Fixtures', 'loaders');
-        $prop->setAccessible(true);
         $prop->setValue([]);
 
         $optionsBatch = [
@@ -241,14 +236,14 @@ class FixturesTest extends TestCase
 
         $loaders = $prop->getValue();
 
-        $this->assertEquals(10, count($loaders));
+        $this->assertCount(10, $loaders);
     }
 
-    public function testThatExceptionIsThrownForInvalidProvider()
+    public function testThatExceptionIsThrownForInvalidProvider(): void
     {
-        $om = $this->getMockBuilder(ObjectManager::class)->getMock();
-        $om->expects($this->any())
-            ->method('find')->will($this->returnValue(new User()));
+        $om = $this->createMock(ObjectManager::class);
+        $om
+            ->method('find')->willReturn(new User());
 
         $this->expectException(
             '\InvalidArgumentException',
