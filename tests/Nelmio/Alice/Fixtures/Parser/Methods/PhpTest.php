@@ -191,54 +191,44 @@ class PhpTest extends TestCase
 
     public function testLoadParameters(): void
     {
-        $parameterBagProphecy = $this->prophesize('Nelmio\Alice\Fixtures\ParameterBag');
-        $parameterBagProphecy->set('foo', 'bar')->shouldBeCalled();
+        $parameterBag = $this->createMock(ParameterBag::class);
+        $parameterBag->expects($this->once())->method('set')->with('foo', 'bar');
 
-        $loaderProphecy = $this->prophesize('Nelmio\Alice\Fixtures\Loader');
-        $loaderProphecy->getFakerProcessorMethod()->shouldBeCalled();
-        $loaderProphecy->getParameterBag()->willReturn($parameterBagProphecy->reveal());
-        /* @var Loader $loader */
-        $loader = $loaderProphecy->reveal();
+        $loader = $this->createMock(Loader::class);
+        $loader->expects($this->once())->method('getFakerProcessorMethod');
+        $loader->expects($this->once())->method('getParameterBag')->willReturn($parameterBag);
 
         $parser = new PhpParser($loader);
         $parser->parse(self::$dir.'/file_with_parameters.php');
-
-        $loaderProphecy->getParameterBag()->shouldHaveBeenCalledTimes(1);
-        $parameterBagProphecy->set(Argument::cetera())->shouldHaveBeenCalledTimes(1);
     }
 
     public function testLoadParametersOfIncludedFiles(): void
     {
-        $parameterBagProphecy = $this->prophesize('Nelmio\Alice\Fixtures\ParameterBag');
-
         $actual = ['foo' => null];
-        $parameterBagProphecy
-            ->set('foo', 'boo')
-            ->will(function($args) use (&$actual) {
-                $actual['foo'] = $args[1];
-            })
-        ;
-        $parameterBagProphecy->set('ping', 'pong')->shouldBeCalled();
-        $parameterBagProphecy
-            ->set('foo', 'bar')
-            ->will(function($args) use (&$actual) {
-                $actual['foo'] = $args[1];
-            })
-        ;
+        $callCount = 0;
 
-        $loaderProphecy = $this->prophesize('Nelmio\Alice\Fixtures\Loader');
-        $loaderProphecy->getFakerProcessorMethod()->shouldBeCalled();
-        $loaderProphecy->getParameterBag()->willReturn($parameterBagProphecy->reveal());
-        /* @var Loader $loader */
-        $loader = $loaderProphecy->reveal();
+        $parameterBag = $this->createMock(ParameterBag::class);
+        $parameterBag->expects($this->exactly(3))
+            ->method('set')
+            ->willReturnCallback(function ($key, $value) use (&$actual, &$callCount) {
+                $expectedCalls = [['foo', 'boo'], ['ping', 'pong'], ['foo', 'bar']];
+                $this->assertEquals($expectedCalls[$callCount][0], $key);
+                $this->assertEquals($expectedCalls[$callCount][1], $value);
+                $callCount++;
+
+                if ($key === 'foo') {
+                    $actual['foo'] = $value;
+                }
+            });
+
+        $loader = $this->createMock(Loader::class);
+        $loader->expects($this->atLeastOnce())->method('getFakerProcessorMethod');
+        $loader->expects($this->exactly(2))->method('getParameterBag')->willReturn($parameterBag);
 
         $parser = new PhpParser($loader);
         $parser->parse(self::$dir.'/include_parameters/main1.php');
 
         $this->assertEquals('bar', $actual['foo']);
-
-        $loaderProphecy->getParameterBag()->shouldHaveBeenCalledTimes(2);
-        $parameterBagProphecy->set(Argument::cetera())->shouldHaveBeenCalledTimes(3);
     }
 
     public static function provideFiles()

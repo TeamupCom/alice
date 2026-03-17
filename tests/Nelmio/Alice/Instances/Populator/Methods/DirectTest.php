@@ -46,7 +46,7 @@ class DirectTest extends TestCase
         $this->fixture = $this->createMock(Fixture::class);
         $this->fixture->expects($this->never())->method('isLocal');
 
-        $typeHintChecker = $this->createMock(TypeHintChecker::class);
+        $typeHintChecker = $this->createStub(TypeHintChecker::class);
         $typeHintChecker->method('check')->willReturnArgument(2);
 
         $this->direct = new Direct($typeHintChecker);

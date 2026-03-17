@@ -43,15 +43,11 @@ class BuilderTest extends TestCase
     {
         new Builder([]);
 
-        $method1Prophecy = $this->prophesize('Nelmio\Alice\Fixtures\Builder\Methods\MethodInterface');
-        $method1Prophecy->canBuild(Argument::any())->shouldNotBeCalled();
-        /** @var MethodInterface $method1 */
-        $method1 = $method1Prophecy->reveal();
+        $method1 = $this->createMock(MethodInterface::class);
+        $method1->expects($this->never())->method('canBuild');
 
-        $method2Prophecy = $this->prophesize('Nelmio\Alice\Fixtures\Builder\Methods\MethodInterface');
-        $method2Prophecy->canBuild(Argument::any())->shouldNotBeCalled();
-        /** @var MethodInterface $method2 */
-        $method2 = $method2Prophecy->reveal();
+        $method2 = $this->createMock(MethodInterface::class);
+        $method2->expects($this->never())->method('canBuild');
 
         new Builder([$method1, $method2]);
     }
