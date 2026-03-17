@@ -11,12 +11,20 @@
 
 namespace Nelmio\Alice\Instances\Instantiator\Methods;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use Nelmio\Alice\Fixtures\Fixture;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithProtectedConstructor;
+use Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithNamedConstructor;
+use Nelmio\Alice\Instances\Instantiator\Methods\EmptyConstructor;
+use Nelmio\Alice\Instances\Instantiator\Methods\MethodInterface;
+use Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithDefaultConstructor;
+use Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithExplicitDefaultConstructor;
+use Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithPrivateConstructor;
+use Nelmio\Alice\Instances\Instantiator\DummyClasses\DummyWithOptionalParameterInConstructor;
 
-/**
- * @covers \Nelmio\Alice\Instances\Instantiator\Methods\EmptyConstructor
- */
+#[CoversClass(EmptyConstructor::class)]
 class EmptyConstructorInstantiatorTest extends TestCase
 {
     /**
@@ -33,8 +41,8 @@ class EmptyConstructorInstantiatorTest extends TestCase
     {
         $this->assertTrue(
             is_a(
-                'Nelmio\Alice\Instances\Instantiator\Methods\EmptyConstructor',
-                'Nelmio\Alice\Instances\Instantiator\Methods\MethodInterface',
+                EmptyConstructor::class,
+                MethodInterface::class,
                 true
             )
         );

@@ -11,6 +11,10 @@
 
 namespace Nelmio\Alice\Fixtures;
 
+use Nelmio\Alice\support\extensions\CustomProcessor;
+use Nelmio\Alice\support\extensions\CustomBuilder;
+use Nelmio\Alice\support\extensions\CustomInstantiator;
+use Nelmio\Alice\support\extensions\CustomPopulator;
 use Nelmio\Alice\support\extensions;
 use Nelmio\Alice\support\extensions\FakerProviderWithRequiredParameter;
 use Nelmio\Alice\support\models\AnotherDummy;
@@ -35,7 +39,7 @@ class LoaderTest extends TestCase
     const NAMED_CONSTRUCTOR_CLASS = 'Nelmio\Alice\support\models\NamedConstructorClass';
 
     /**
-     * @var \Nelmio\Alice\Fixtures\Loader
+     * @var Loader
      */
     protected $loader;
 
@@ -1843,7 +1847,7 @@ class LoaderTest extends TestCase
     public function testAddProcessor(): void
     {
         $loader = $this->createLoader();
-        $loader->addProcessor(new extensions\CustomProcessor);
+        $loader->addProcessor(new CustomProcessor);
         $res = $loader->load([
             self::USER => [
                 'user' => [
@@ -1859,7 +1863,7 @@ class LoaderTest extends TestCase
     public function testAddBuilder(): void
     {
         $loader = $this->createLoader();
-        $loader->addBuilder(new extensions\CustomBuilder);
+        $loader->addBuilder(new CustomBuilder);
         $res = $loader->load([
             self::USER => [
                 'spec dumped' => [
@@ -1875,7 +1879,7 @@ class LoaderTest extends TestCase
     public function testAddInstantiator(): void
     {
         $loader = $this->createLoader();
-        $loader->addInstantiator(new extensions\CustomInstantiator);
+        $loader->addInstantiator(new CustomInstantiator);
         $res = $loader->load([
             self::USER => [
                 'user' => [
@@ -1891,7 +1895,7 @@ class LoaderTest extends TestCase
     public function testAddPopulator(): void
     {
         $loader = $this->createLoader();
-        $loader->addPopulator(new extensions\CustomPopulator);
+        $loader->addPopulator(new CustomPopulator);
         $res = $loader->load([
             self::USER => [
                 'user' => [

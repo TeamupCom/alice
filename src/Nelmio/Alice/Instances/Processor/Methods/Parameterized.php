@@ -16,7 +16,7 @@ use Nelmio\Alice\Instances\Processor\ProcessableInterface;
 
 class Parameterized implements MethodInterface
 {
-    private static $regex = '/<\{(?<parameter>.*?)\}>/i';
+    private const REGEX = '/<\{(?<parameter>.*?)\}>/i';
 
     /**
      * @var ParameterBag
@@ -37,7 +37,7 @@ class Parameterized implements MethodInterface
 
         return
             is_string($value)
-            && 1 === preg_match(static::$regex, $value)
+            && 1 === preg_match(self::REGEX, $value)
         ;
     }
 
@@ -51,7 +51,7 @@ class Parameterized implements MethodInterface
         $value = $processable->getValue();
 
         return preg_replace_callback(
-            static::$regex,
+            self::REGEX,
             function ($matches) {
                 $key = $matches['parameter'];
 

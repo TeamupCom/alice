@@ -16,6 +16,8 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Persistence\ObjectManager;
 use Nelmio\Alice\support\models\User;
 use PHPUnit\Framework\TestCase;
+use Nelmio\Alice\Fixtures;
+use Nelmio\Alice\FooProvider;
 
 class FixturesTest extends TestCase
 {
@@ -129,7 +131,7 @@ class FixturesTest extends TestCase
             ->method('getAllMetadata')
             ->willReturn([$metadata, $metadata, $metadata]);
 
-        $prop = new \ReflectionProperty('\Nelmio\Alice\Fixtures', 'loaders');
+        $prop = new \ReflectionProperty(Fixtures::class, 'loaders');
         $prop->setValue([]);
 
         $optionsBatch = [

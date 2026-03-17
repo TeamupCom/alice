@@ -17,7 +17,6 @@ use Nelmio\Alice\Fixtures\Loader;
 use Nelmio\Alice\Fixtures\ParameterBag;
 use Nelmio\Alice\Fixtures\Parser\Methods\Php as PhpParser;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
 
 class PhpTest extends TestCase
 {
@@ -52,8 +51,8 @@ class PhpTest extends TestCase
     {
         $this->assertTrue(
             is_a(
-                'Nelmio\Alice\Fixtures\Parser\Methods\Php',
-                'Nelmio\Alice\Fixtures\Parser\Methods\MethodInterface',
+                PhpParser::class,
+                MethodInterface::class,
                 true
             )
         );
