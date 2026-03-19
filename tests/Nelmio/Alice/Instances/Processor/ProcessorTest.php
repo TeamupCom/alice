@@ -32,7 +32,7 @@ class ProcessorTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("All methods passed into Processor must implement MethodInterface.");
-        new Processor(new Collection, ['CustomProcessor'], new ParameterBag());
+        new Processor(new Collection, ['CustomProcessor']);
     }
 
     public function testAddProcessor(): void
@@ -67,6 +67,6 @@ class ProcessorTest extends TestCase
         ];
         $options = array_merge($defaults, $options);
 
-        return $this->processor = new Processor($this->objects = $options['objects'], $options['methods'], new ParameterBag());
+        return $this->processor = new Processor($this->objects = $options['objects'], $options['methods']);
     }
 }

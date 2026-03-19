@@ -40,10 +40,10 @@ class PopulatorTest extends TestCase
 
     protected function createPopulator(array $options = [])
     {
-        $objects = isset($options['objects']) ? $options['objects'] : new Collection;
+        $objects = $options['objects'] ?? new Collection;
         $defaults = [
             'objects' => $objects,
-            'processor' => new Processor($objects, [], new ParameterBag()),
+            'processor' => new Processor($objects, []),
             'methods' => []
         ];
         $options = array_merge($defaults, $options);
