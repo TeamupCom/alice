@@ -17,25 +17,16 @@ use Nelmio\Alice\Util\SetterInjector;
 
 class Processor
 {
-    /**
-     * @var Collection
-     */
-    private $objects;
+    private Collection $objects;
 
     /**
      * @var MethodInterface[]
      */
-    private $methods = [];
+    private array $methods = [];
+
+    private mixed $valueForCurrent = null;
 
     /**
-     * @var string
-     */
-    private $valueForCurrent;
-
-    /**
-     * @param Collection $objects
-     * @param array      $methods
-     *
      * @throws \InvalidArgumentException
      */
     public function __construct(Collection $objects, array $methods)
@@ -67,14 +58,11 @@ class Processor
     /**
      * Processes a given value to return a value that can be set on the actual instance.
      *
-     * @param mixed  $valueOrProcessable The original value (or value persister) to be converted
-     * @param array  $variables
-     * @param string $valueForCurrent    In the event a fixture will need to support <current()>, this value must be
+     * @param mixed $valueOrProcessable The original value (or value persister) to be converted
+     * @param mixed $valueForCurrent In the event a fixture will need to support <current()>, this value must be
      *                                   passed in at the top of the process loop
-     *
-     * @return mixed
      */
-    public function process($valueOrProcessable, array $variables, $valueForCurrent = null)
+    public function process(mixed $valueOrProcessable, array $variables, mixed $valueForCurrent = null): mixed
     {
         $value = $valueOrProcessable instanceof ProcessableInterface ? $valueOrProcessable->getValue() : $valueOrProcessable;
 

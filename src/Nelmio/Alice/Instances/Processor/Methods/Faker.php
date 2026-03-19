@@ -42,10 +42,7 @@ class Faker implements MethodInterface
      */
     private $defaultLocale;
 
-    /**
-     * @var string
-     */
-    private $valueForCurrent;
+    private mixed $valueForCurrent = null;
 
     /**
      * @param array  $providers Faker providers
@@ -69,18 +66,14 @@ class Faker implements MethodInterface
 
     /**
      * Sets the value for <current()>
-     *
-     * @param string
      */
-    public function setValueForCurrent($valueForCurrent)
+    public function setValueForCurrent(mixed $valueForCurrent)
     {
         $this->valueForCurrent = $valueForCurrent;
     }
 
     /**
      * Sets the providers that can be used
-     *
-     * @param array
      */
     public function setProviders(array $providers)
     {
@@ -215,14 +208,13 @@ class Faker implements MethodInterface
      *
      * @throws \UnexpectedValueException
      *
-     * @return mixed
-     * @private
+     * @internal
      */
-    public function fake($formatter, $locale = null)
+    public function fake(string $formatter, ?string $locale = null): mixed
     {
         $args = array_slice(func_get_args(), 2);
 
-        if ($formatter == 'current') {
+        if ($formatter === 'current') {
             if ($this->valueForCurrent === null) {
                 throw new \UnexpectedValueException('Cannot use <current()> out of fixtures ranges or enum');
             }
@@ -236,11 +228,11 @@ class Faker implements MethodInterface
     /**
      * Gets the generator for this locale.
      *
-     * @param string $locale the requested locale, defaults to constructor injected default
+     * @param string|null $locale the requested locale, defaults to constructor injected default
      *
      * @return Generator the generator for the requested locale
      */
-    private function getGenerator($locale = null)
+    private function getGenerator(?string $locale = null): Generator
     {
         $locale = $locale ?: $this->defaultLocale;
 

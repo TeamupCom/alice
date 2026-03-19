@@ -50,7 +50,7 @@ class LoaderTest extends TestCase
         return $loader->load($data);
     }
 
-    protected function createLoader(array $options = [])
+    protected function createLoader(array $options = []): Loader
     {
         $defaults = [
             'locale' => 'en_US',
@@ -2201,12 +2201,12 @@ class FakerProvider
         return $str;
     }
 
-    public function upperCaseProvider($arg)
+    public function upperCaseProvider($arg): string
     {
         return strtoupper($arg);
     }
 
-    public function null()
+    public function null(): null
     {
         return null;
     }

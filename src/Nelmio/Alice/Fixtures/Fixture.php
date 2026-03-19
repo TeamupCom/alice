@@ -33,20 +33,23 @@ class Fixture
     /**
      * @var PropertyDefinition[]
      */
-    protected $properties;
+    private array $properties;
 
     /**
-     * @var array e.g. ['template' => true, 'extends dummy' => true]
+     * @var array<string, bool> e.g. ['template' => true, 'extends dummy' => true]
      */
-    protected $classFlags;
+    private array $classFlags;
+    private array $nameFlags;
+    private mixed $valueForCurrent;
+    private array $setProperties = [];
 
     /**
-     * @var array
+     * @param mixed $valueForCurrent When <current()> is called, this value is used
      */
     public function __construct(string $class, string $name, array $spec, mixed $valueForCurrent)
     {
-        list($this->class, $this->classFlags) = FlagParser::parse($class);
-        list($this->name, $this->nameFlags) = FlagParser::parse($name);
+        [$this->class, $this->classFlags] = FlagParser::parse($class);
+        [$this->name, $this->nameFlags] = FlagParser::parse($name);
 
         $this->checkName($name);
 
@@ -62,9 +65,9 @@ class Fixture
     }
 
     /**
-     * @return boolean true when the fixture has either the local class or name flag.
+     * @return bool true when the fixture has either the local class or name flag.
      */
-    public function isLocal()
+    public function isLocal(): bool
     {
         $isLocal = $this->hasClassFlag('local') || $this->hasNameFlag('local');
         if ($isLocal) {
@@ -79,19 +82,17 @@ class Fixture
     }
 
     /**
-     * @return boolean true when the fixture has been flagged as a template.
+     * @return bool true when the fixture has been flagged as a template.
      */
-    public function isTemplate()
+    public function isTemplate(): bool
     {
         return $this->hasNameFlag('template');
     }
 
     /**
      * Extends this fixture by the given template.
-     *
-     * @param Fixture $template
      */
-    public function extendTemplate(Fixture $template)
+    public function extendTemplate(self $template): void
     {
         if (!$template->isTemplate()) {
             throw new \InvalidArgumentException('Argument must be a template, not just a fixture.');
@@ -107,17 +108,17 @@ class Fixture
     /**
      * @return string[] list of templates (references) to extend.
      */
-    public function getExtensions()
+    public function getExtensions(): array
     {
         $extensions = array_filter(
             array_keys($this->nameFlags),
-            function ($flag) {
+            static function ($flag) {
                 return 1 === preg_match('#^extends\s*(.+)$#', $flag);
             }
         );
 
         return array_map(
-            function ($extension) {
+            static function ($extension) {
                 return str_replace('extends ', '', $extension);
             },
             $extensions
@@ -125,35 +126,24 @@ class Fixture
     }
 
     /**
-     * @return boolean true if the fixture has extensions.
+     * @return bool true if the fixture has extensions.
      */
-    public function hasExtensions()
+    public function hasExtensions(): bool
     {
         return count($this->getExtensions()) > 0;
     }
 
-    /**
-     * @return string
-     */
-    public function getClass()
+    public function getClass(): string
     {
         return $this->class;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasProperty($name)
+    public function hasProperty(string $name): bool
     {
         foreach ($this->properties as $property) {
             if ($property->getName() === $name) {
@@ -181,19 +171,17 @@ class Fixture
     /**
      * @return array The list of class flags on this fixture.
      */
-    public function getClassFlags()
+    public function getClassFlags(): array
     {
         return $this->classFlags;
     }
 
     /**
-     * @param string $flag
-     *
      * @return bool true if this fixture has the given class flag
      */
-    public function hasClassFlag($flag)
+    public function hasClassFlag(string $flag): bool
     {
-        return in_array($flag, array_keys($this->classFlags));
+        return array_key_exists($flag, $this->classFlags);
     }
 
     /**
@@ -205,19 +193,14 @@ class Fixture
     }
 
     /**
-     * @param string $flag
-     *
      * @return bool true if this fixture has the given name flag.
      */
-    public function hasNameFlag($flag)
+    public function hasNameFlag(string $flag): bool
     {
-        return in_array($flag, array_keys($this->nameFlags));
+        return array_key_exists($flag, $this->nameFlags);
     }
 
-    /**
-     * @return string
-     */
-    public function getValueForCurrent()
+    public function getValueForCurrent(): mixed
     {
         return $this->valueForCurrent;
     }

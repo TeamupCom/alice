@@ -89,13 +89,7 @@ abstract class Base implements MethodInterface
         };
     }
 
-    /**
-     * @param array  $data
-     * @param string $filename
-     *
-     * @return mixed
-     */
-    protected function processIncludes($data, $filename)
+    protected function processIncludes(array $data, string $filename): mixed
     {
         if (isset($data['include'])) {
             foreach ($data['include'] as $include) {

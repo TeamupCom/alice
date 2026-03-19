@@ -267,9 +267,6 @@ class Loader
 
     /**
      * parses a file at the given filename
-     *
-     * @param  string $filename
-     * @return array  data
      */
     protected function parseFile(string $filename): ?array
     {
@@ -465,7 +462,7 @@ class Loader
      * @param  TypeHintChecker $typeHintChecker
      * @return array
      */
-    private function getBuiltInPopulators(TypeHintChecker $typeHintChecker)
+    private function getBuiltInPopulators(TypeHintChecker $typeHintChecker): array
     {
         return [
             new ArrayAdd($typeHintChecker),

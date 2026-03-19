@@ -28,7 +28,6 @@ interface MethodInterface
      * Returns the processed value.
      *
      * @param ProcessableInterface $processable
-     * @param array
      * 
      * @return mixed
      */
