@@ -26,12 +26,20 @@
     },
     "require-dev": {
         "doctrine/common": "^2.3",
-        "phpunit/phpunit": "^12.5"
+        "phpunit/phpunit": "^12.5",
+        "rector/rector": "^2.3",
+        "phpstan/phpstan": "^2.1"
     },
     "autoload": {
         "psr-4": { "Nelmio\\Alice\\": "src/Nelmio/Alice" }
     },
     "autoload-dev": {
         "psr-4": { "Nelmio\\Alice\\": "tests/Nelmio/Alice" }
+    },
+    "scripts": {
+        "phpunit": "vendor/bin/phpunit",
+        "phpstan:check": "vendor/bin/phpstan analyse",
+        "rector:check": "vendor/bin/rector --dry-run",
+        "rector:fix": "vendor/bin/rector"
     }
 }
