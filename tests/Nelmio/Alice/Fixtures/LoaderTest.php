@@ -15,17 +15,17 @@ use Nelmio\Alice\support\extensions\CustomProcessor;
 use Nelmio\Alice\support\extensions\CustomBuilder;
 use Nelmio\Alice\support\extensions\CustomInstantiator;
 use Nelmio\Alice\support\extensions\CustomPopulator;
-use Nelmio\Alice\support\extensions;
 use Nelmio\Alice\support\extensions\FakerProviderWithRequiredParameter;
 use Nelmio\Alice\support\models\AnotherDummy;
 use Nelmio\Alice\support\models\DummyWithVariadicConstructor;
-use Nelmio\Alice\support\models\Group;
+use Nelmio\Alice\support\models\UserGroup;
 use Nelmio\Alice\support\models\MagicUser;
 use Nelmio\Alice\support\models\typehint\Dummy;
 use Nelmio\Alice\support\models\typehint\DummyWithInterface;
 use Nelmio\Alice\support\models\typehint\RelatedDummy;
 use Nelmio\Alice\support\models\User;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 class LoaderTest extends TestCase
@@ -33,7 +33,7 @@ class LoaderTest extends TestCase
     const USER = 'Nelmio\Alice\support\models\User';
     const MAGIC_USER = 'Nelmio\Alice\support\models\MagicUser';
     const STATIC_USER = 'Nelmio\Alice\support\models\StaticUser';
-    const GROUP = 'Nelmio\Alice\support\models\Group';
+    const GROUP = UserGroup::class;
     const CONTACT = 'Nelmio\Alice\support\models\Contact';
     const PRIVATE_CONSTRUCTOR_CLASS = 'Nelmio\Alice\support\models\PrivateConstructorClass';
     const NAMED_CONSTRUCTOR_CLASS = 'Nelmio\Alice\support\models\NamedConstructorClass';
@@ -103,8 +103,8 @@ class LoaderTest extends TestCase
 
     public function testGetBadReference(): void
     {
-        $this->expectExceptionMessage("Instance foo is not defined");
         $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage("Instance foo is not defined");
         $this->loadData([]);
         $this->loader->getReference('foo');
     }
@@ -156,9 +156,8 @@ class LoaderTest extends TestCase
         );
     }
 
-    /**
-     * @group legacy
-     */
+
+    #[Group('legacy')]
     public function testCreatePrivateConstructorInstance(): void
     {
         $loader = new Loader('en_US', [new FakerProvider]);
@@ -184,22 +183,21 @@ class LoaderTest extends TestCase
     public function testLoadInvalidFile(): void
     {
         $file = __DIR__.'/../support/fixtures/invalid.php';
-        $this->expectException(
-            '\UnexpectedValueException',
-            sprintf('Included file "%s" must return an array of data', $file)
-        );
+        $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage(sprintf('Included file "%s" must return an array of data', $file));
+
         $this->createLoader()->load($file);
     }
 
     public function testLoadEmptyFile(): void
     {
-        $res = $this->createLoader()->load($file = __DIR__.'/../support/fixtures/empty.php');
+        $res = $this->createLoader()->load(__DIR__.'/../support/fixtures/empty.php');
         $this->assertSame([], $res);
     }
 
     public function testLoadSequencedItems(): void
     {
-        $object = $this->createLoader()->load($file = __DIR__.'/../support/fixtures/sequenced_items.yml');
+        $object = $this->createLoader()->load(__DIR__.'/../support/fixtures/sequenced_items.yml');
 
         $this->assertArrayHasKey('group1', $object);
         $this->assertInstanceOf(self::GROUP, $object['group1']);
@@ -267,9 +265,7 @@ class LoaderTest extends TestCase
         $this->assertEquals('group', $group->getName());
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testLoadAssignsDataToNonPublicSetters(): void
     {
         $res = $this->loadData([
@@ -284,20 +280,18 @@ class LoaderTest extends TestCase
         $this->assertEquals('group', $group->getSortName());
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testLoadAssignsDataToDirectlyWithReflection(): void
     {
         $res = $this->loadData([
-            Group::class => [
+            UserGroup::class => [
                 'a' => [
                     'foo' => 'bar',
                 ],
             ],
         ]);
-        /** @var Group $group */
         $group = $res['a'];
+        $this->assertInstanceOf(UserGroup::class, $group);
 
         $this->assertEquals('bar', $group->getFoo());
     }
@@ -345,7 +339,7 @@ class LoaderTest extends TestCase
                 ],
             ],
         ]);
-        /** @var Group $group */
+
         $group = $res['a'];
 
         $this->assertInstanceOf(self::GROUP, $group);
@@ -372,10 +366,9 @@ class LoaderTest extends TestCase
                 ],
             ],
         ]);
-        /** @var Group $group */
         $group = $objects['a'];
 
-        $this->assertInstanceOf(Group::class, $group);
+        $this->assertInstanceOf(UserGroup::class, $group);
 
         $members = $group->getMembers();
 
@@ -386,9 +379,7 @@ class LoaderTest extends TestCase
         $this->assertEquals('bob', $members[1]->username);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testLoadParsesReferencesInQuotes(): void
     {
         $result = $this->loadData([
@@ -397,14 +388,15 @@ class LoaderTest extends TestCase
                     'username' => 'alice',
                 ],
             ],
-            Group::class => [
+            UserGroup::class => [
                 'group' => [
                     'members' => ['\'@user1\'']
                 ],
             ],
         ]);
-        /** @var Group $group */
+
         $group = $result['group'];
+        $this->assertInstanceOf(UserGroup::class, $group);
 
         $this->assertInstanceOf(User::class, current($group->getMembers()));
         $this->assertEquals('alice', current($group->getMembers())->username);
@@ -469,8 +461,8 @@ class LoaderTest extends TestCase
 
     public function testLoadParsesPropertyReferencesDoesNotExist(): void
     {
-        $this->expectExceptionMessage("Property doesnotexist is not defined for instance user1");
         $this->expectException(\UnexpectedValueException::class);
+        $this->expectExceptionMessage("Property doesnotexist is not defined for instance user1");
         $this->loadData([
             self::USER => [
                 'user1' => [
@@ -498,6 +490,7 @@ class LoaderTest extends TestCase
             ],
         ]);
         $group = $res['a'];
+        $this->assertInstanceOf(UserGroup::class, $group);
 
         $this->assertInstanceOf(self::USER, $group->getOwner());
         $this->assertEquals('bob', $group->getOwner()->username);
@@ -550,6 +543,7 @@ class LoaderTest extends TestCase
             ],
         ]);
         $group = $res['a'];
+        $this->assertInstanceOf(UserGroup::class, $group);
 
         $this->assertEquals('bob@gmail.com', $group->getContactEmail());
     }
@@ -600,6 +594,7 @@ class LoaderTest extends TestCase
             ],
         ]);
         $group = $res['a'];
+        $this->assertInstanceOf(UserGroup::class, $group);
 
         $this->assertCount(1, $group->getMembers());
     }
@@ -663,9 +658,7 @@ class LoaderTest extends TestCase
         $this->assertContains($this->loader->getReference('user1')->username, ['name', 'nothing']);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testLoadParsesOptionalValuesWithPercentsLimits(): void
     {
         $this->loadData([
@@ -683,9 +676,7 @@ class LoaderTest extends TestCase
         $this->assertEquals('hello', $this->loader->getReference('user1')->username);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testLoadParsesOptionalValuesWithFloats(): void
     {
         $this->loadData([
@@ -711,13 +702,11 @@ class LoaderTest extends TestCase
         $this->assertEquals('name', $this->loader->getReference('user3')->username);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testLoadCoercesDatesForDateTimeHints(): void
     {
         $result = $this->loadData([
-            Group::class => [
+            UserGroup::class => [
                 'group0' => [
                     'creationDate' => '2012-01-05',
                 ],
@@ -727,10 +716,10 @@ class LoaderTest extends TestCase
             ],
         ]);
 
-        /** @var Group $group0 */
         $group0 = $result['group0'];
-        /** @var Group $group1 */
+        $this->assertInstanceOf(UserGroup::class, $group0);
         $group1 = $result['group1'];
+        $this->assertInstanceOf(UserGroup::class, $group1);
 
         $this->assertInstanceOf(\DateTime::class, $group0->getCreationDate());
         $this->assertSame('2012-01-05', $group0->getCreationDate()->format('Y-m-d'));
@@ -741,15 +730,15 @@ class LoaderTest extends TestCase
     public function testCreatesDateTimeWithIdentity(): void
     {
         $result = $this->loadData([
-            Group::class => [
+            UserGroup::class => [
                 'group' => [
                     'name' => '<(new \DateTime("2012-01-05"))>',
                 ],
             ],
         ]);
 
-        /** @var Group $group */
         $group = $result['group'];
+        $this->assertInstanceOf(UserGroup::class, $group);
 
         $this->assertInstanceOf(\DateTime::class, $group->getName());
         $this->assertSame('2012-01-05', $group->getName()->format('Y-m-d'));
@@ -1078,9 +1067,7 @@ class LoaderTest extends TestCase
         $this->assertEquals('bar', $res['user_bar']->username);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testLoadCreatesEnumsOfObjectsWithMalformedList(): void
     {
         $res = $this->loadData([
@@ -1104,13 +1091,11 @@ class LoaderTest extends TestCase
         $this->assertEquals('foo bar', $res['user_foo bar']->username);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testLocalObjectsAreNotReturned(): void
     {
         $result = $this->loadData([
-            sprintf('%s (local)', Group::class) => [
+            sprintf('%s (local)', UserGroup::class) => [
                 'foo_group' => [
                     'name' => 'foo',
                 ],
@@ -1131,7 +1116,7 @@ class LoaderTest extends TestCase
         $group = $this->loader->getReference('foo_group');
         $this->assertInstanceOf(User::class, $user1);
         $this->assertInstanceOf(User::class, $user2);
-        $this->assertInstanceOf(Group::class, $group);
+        $this->assertInstanceOf(UserGroup::class, $group);
         $this->assertSame($user1->email, $group);
         $this->assertSame($user2->email, $group);
 
@@ -1168,8 +1153,8 @@ class LoaderTest extends TestCase
         $objects = $this->createLoader()->load(__DIR__.'/Files/includes/user.yml');
 
         $this->assertCount(1, $objects);
-        /** @var User $user0 */
         $user0 = $this->loader->getReference('user0');
+        $this->assertInstanceOf(User::class, $user0);
         $this->assertInstanceOf(self::USER, $user0);
         $this->assertSame('Base user', $user0->username);
     }
@@ -1200,9 +1185,7 @@ class LoaderTest extends TestCase
         }
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testTemplateCanExtendOtherTemplateObjectsCombinedWithRangeWithLegacySyntax(): void
     {
         $res = $this->loadData([
@@ -1499,9 +1482,8 @@ class LoaderTest extends TestCase
         ]);
     }
 
-    /**
-     * @group legacy
-     */
+
+    #[Group('legacy')]
     public function testLoadCallsCustomMethodAfterCtor(): void
     {
         $res = $this->loadData([
@@ -1563,9 +1545,7 @@ class LoaderTest extends TestCase
         $this->assertInstanceOf('DateTime', $res['user']->birthDate);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testGeneratedValuesAreUnique(): void
     {
         $loader = new Loader('en_US', [new FakerProvider]);
@@ -1644,9 +1624,7 @@ class LoaderTest extends TestCase
         );
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testCustomSetFunction(): void
     {
         $loader = $this->createLoader(
@@ -1714,9 +1692,7 @@ class LoaderTest extends TestCase
         $this->assertSame($dummy0->data, $relatedDummy0);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testUseTypehintInSetterWithLocalFlag(): void
     {
         $loader = $this->createLoader();
@@ -1765,9 +1741,7 @@ class LoaderTest extends TestCase
         $this->assertSame($dummy0->data, $relatedDummy0);
     }
 
-    /**
-     * @group legacy
-     */
+    #[Group('legacy')]
     public function testUseTypehintInSetterWithInterfaceAndLocalFlag(): void
     {
         $loader = $this->createLoader();
@@ -2186,14 +2160,14 @@ class LoaderTest extends TestCase
 
 class FakerProvider
 {
-    public function fooGenerator()
+    public function fooGenerator(): string
     {
         return 'foo';
     }
 
-    public function randomNumber()
+    public function randomNumber(): int
     {
-        return mt_rand(0, 9);
+        return random_int(0, 9);
     }
 
     public function noop($str)

@@ -15,20 +15,17 @@ use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Persistence\ObjectManager;
 use Nelmio\Alice\support\models\User;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Nelmio\Alice\Fixtures;
-use Nelmio\Alice\FooProvider;
+use Nelmio\Alice\support\models\UserGroup;
+use Nelmio\Alice\support\models\Contact;
 
 class FixturesTest extends TestCase
 {
-    const USER = 'Nelmio\Alice\support\models\User';
-    const GROUP = 'Nelmio\Alice\support\models\Group';
-    const CONTACT = 'Nelmio\Alice\support\models\Contact';
-
     public function testLoadUniqueFromTemplateFixtures(): void
     {
-        $objectManagerMock = $this->createMock(ObjectManager::class);
-        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $objectManagerMock = $this->createStub(ObjectManager::class);
+        $metadataFactory = $this->createStub(ClassMetadataFactory::class);
         $metadata = $this->createStub(ClassMetadata::class);
 
         $objectManagerMock
@@ -53,8 +50,8 @@ class FixturesTest extends TestCase
 
     public function testLoadUniqueFromMoreThanOneTemplateFixtures(): void
     {
-        $objectManagerMock = $this->createMock(ObjectManager::class);
-        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $objectManagerMock = $this->createStub(ObjectManager::class);
+        $metadataFactory = $this->createStub(ClassMetadataFactory::class);
         $metadata = $this->createStub(ClassMetadata::class);
 
         $objectManagerMock
@@ -91,7 +88,7 @@ class FixturesTest extends TestCase
         $this->assertCount(14, $objects);
 
         $user = $objects['user0'];
-        $this->assertInstanceOf(self::USER, $user);
+        $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('johnny', $user->username);
         $this->assertEquals(42, $user->favoriteNumber);
 
@@ -100,11 +97,11 @@ class FixturesTest extends TestCase
         $this->assertSame($user, $group->getOwner());
 
         $lastGroup = $objects['group1'];
-        $this->assertInstanceOf(self::GROUP, $lastGroup);
+        $this->assertInstanceOf(UserGroup::class, $lastGroup);
         $this->assertCount(3, $lastGroup->getMembers());
 
         $contact = $objects['contact0'];
-        $this->assertInstanceOf(self::CONTACT, $contact);
+        $this->assertInstanceOf(Contact::class, $contact);
         $this->assertSame($user, $contact->getUser());
         $this->assertSame($lastGroup->contactPerson, $contact->getUser());
     }
@@ -113,13 +110,13 @@ class FixturesTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $om = $this->createStub(ObjectManager::class);
-        $objects = Fixtures::load(__DIR__.'/fixtures/missing_file.yml', $om, ['providers' => [$this]]);
+        Fixtures::load(__DIR__.'/fixtures/missing_file.yml', $om, ['providers' => [$this]]);
     }
 
     public function testThatNewLoaderIsCreatedForDifferingOptions(): void
     {
-        $om = $this->createMock(ObjectManager::class);
-        $metadataFactory = $this->createMock(ClassMetadataFactory::class);
+        $om = $this->createStub(ObjectManager::class);
+        $metadataFactory = $this->createStub(ClassMetadataFactory::class);
         $metadata = $this->createStub(ClassMetadata::class);
 
         $om->method('find')
@@ -243,25 +240,16 @@ class FixturesTest extends TestCase
 
     public function testThatExceptionIsThrownForInvalidProvider(): void
     {
-        $om = $this->createMock(ObjectManager::class);
-        $om
-            ->method('find')->willReturn(new User());
+        $om = $this->createStub(ObjectManager::class);
+        $om->method('find')->willReturn(new User());
 
-        $this->expectException(
-            '\InvalidArgumentException',
-            'The provider should be a string or an object, got array instead'
-        );
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The provider should be a string or an object, got array instead');
 
         Fixtures::load(
             __DIR__.'/support/fixtures/complete.yml',
             $om,
-            [
-                'providers' => [
-                    'Nelmio\Alice\FooProvider',
-                    ['foo'],
-                    $this,
-                ],
-            ]
+            ['providers' => [FooProvider::class, ['foo'], $this]]
         );
     }
 
@@ -286,13 +274,13 @@ class FixturesTest extends TestCase
         $om = $this->getDoctrineManagerMock(2);
 
         $objects = Fixtures::load([
-            self::USER => [
+            User::class => [
                 'user1' => [
                     'username' => 'johnny',
                     'favoriteNumber' => 42,
                 ],
             ],
-            self::GROUP => [
+            UserGroup::class => [
                 'group1' => [
                     'owner' => 1
                 ],
@@ -303,7 +291,7 @@ class FixturesTest extends TestCase
         $this->assertCount(2, $objects);
 
         $user = $objects['user1'];
-        $this->assertInstanceOf(self::USER, $user);
+        $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('johnny', $user->username);
         $this->assertEquals(42, $user->favoriteNumber);
     }
@@ -317,7 +305,7 @@ class FixturesTest extends TestCase
         $this->assertCount(2, $objects);
 
         $user = $objects['user1'];
-        $this->assertInstanceOf(self::USER, $user);
+        $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('johnny', $user->username);
         $this->assertEquals(42, $user->favoriteNumber);
     }
@@ -358,21 +346,21 @@ class FixturesTest extends TestCase
         $this->assertCount(19, $objects);
 
         $user = $objects['user11'];
-        $this->assertInstanceOf(self::USER, $user);
+        $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('John Doe', $user->fullname);
         $this->assertNotEquals(127, $user->favoriteNumber);
 
         $user = $objects['user12'];
-        $this->assertInstanceOf(self::USER, $user);
+        $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('stormtrooper12', $user->username);
         $this->assertEquals(42, $user->favoriteNumber);
 
         $user = $objects['user15'];
-        $this->assertInstanceOf(self::USER, $user);
+        $this->assertInstanceOf(User::class, $user);
         $this->assertEquals('stormtrooper15', $user->username);
     }
 
-    protected function getDoctrineManagerMock($objects = null)
+    protected function getDoctrineManagerMock(int $objectsCount): MockObject|ObjectManager
     {
         $om = $this->createMock(ObjectManager::class);
         $metadataFactory = $this->createMock(ClassMetadataFactory::class);
@@ -390,24 +378,25 @@ class FixturesTest extends TestCase
 
         $metadata1->expects($this->once())
             ->method('getName')
-            ->willReturn(self::USER);
+            ->willReturn(User::class);
 
         $metadata2->expects($this->once())
             ->method('getName')
-            ->willReturn(self::CONTACT);
+            ->willReturn(Contact::class);
 
         $metadata3->expects($this->once())
             ->method('getName')
-            ->willReturn(self::GROUP);
+            ->willReturn(UserGroup::class);
 
-        $om->expects($objects ? $this->exactly($objects) : $this->any())
+        $om->expects($this->exactly($objectsCount))
             ->method('persist');
 
         $om->expects($this->once())
             ->method('flush');
 
         $om->expects($this->once())
-            ->method('find')->willReturn(new User());
+            ->method('find')
+            ->willReturn(new User());
 
         return $om;
     }

@@ -14,7 +14,7 @@ namespace Nelmio\Alice;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Persistence\ObjectManager;
-use Nelmio\Alice\support\models\Group;
+use Nelmio\Alice\support\models\UserGroup;
 use Nelmio\Alice\support\models\Task;
 use Nelmio\Alice\support\models\User;
 use PHPUnit\Framework\TestCase;
@@ -59,23 +59,23 @@ class ReferenceRangeNameTest extends TestCase
         $this->assertCount(11, $objects);
 
         $groupReference = $objects['group_1_user1'];
-        $this->assertInstanceOf(Group::class, $groupReference);
+        $this->assertInstanceOf(UserGroup::class, $groupReference);
         $this->assertInstanceOf(User::class, $groupReference->getOwner());
         $this->assertEquals($objects['user1'], $groupReference->getOwner());
         $this->assertCount(3, $groupReference->getMembers());
 
         $groupReferenceList1 = $objects['group_list_user1'];
-        $this->assertInstanceOf(Group::class, $groupReferenceList1);
+        $this->assertInstanceOf(UserGroup::class, $groupReferenceList1);
         $this->assertInstanceOf(User::class, $groupReferenceList1->getOwner());
         $this->assertEquals($objects['user1'], $groupReferenceList1->getOwner());
 
         $groupReferenceList2 = $objects['group_list_user2'];
-        $this->assertInstanceOf(Group::class, $groupReferenceList2);
+        $this->assertInstanceOf(UserGroup::class, $groupReferenceList2);
         $this->assertInstanceOf(User::class, $groupReferenceList2->getOwner());
         $this->assertEquals($objects['user2'], $groupReferenceList2->getOwner());
 
         $groupReferenceList3 = $objects['group_list_user3'];
-        $this->assertInstanceOf(Group::class, $groupReferenceList3);
+        $this->assertInstanceOf(UserGroup::class, $groupReferenceList3);
         $this->assertInstanceOf(User::class, $groupReferenceList3->getOwner());
         $this->assertEquals($objects['user3'], $groupReferenceList3->getOwner());
 
@@ -99,24 +99,21 @@ class ReferenceRangeNameTest extends TestCase
         $this->assertCount(5, $objects);
 
         $groupReferenceUserAlice = $objects['group_user_alice'];
-        $this->assertInstanceOf(Group::class, $groupReferenceUserAlice);
+        $this->assertInstanceOf(UserGroup::class, $groupReferenceUserAlice);
         $this->assertInstanceOf(User::class, $groupReferenceUserAlice->getOwner());
         $this->assertEquals($objects['user_alice'], $groupReferenceUserAlice->getOwner());
 
         $groupReferenceUserBob = $objects['group_user_bob'];
-        $this->assertInstanceOf(Group::class, $groupReferenceUserBob);
+        $this->assertInstanceOf(UserGroup::class, $groupReferenceUserBob);
         $this->assertInstanceOf(User::class, $groupReferenceUserBob->getOwner());
         $this->assertEquals($objects['user_bob'], $groupReferenceUserBob->getOwner());
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function getDoctrineManagerMock()
+    private function getDoctrineManagerMock(): ObjectManager
     {
-        $managerMock = $this->createMock(ObjectManager::class);
-        $metadataFactoryMock = $this->createMock(ClassMetadataFactory::class);
-        $metadataMock = $this->createMock(ClassMetadata::class);
+        $managerMock = $this->createStub(ObjectManager::class);
+        $metadataFactoryMock = $this->createStub(ClassMetadataFactory::class);
+        $metadataMock = $this->createStub(ClassMetadata::class);
 
         $managerMock
             ->method('getMetadataFactory')

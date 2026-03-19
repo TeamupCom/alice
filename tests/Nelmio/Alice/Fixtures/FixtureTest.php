@@ -19,7 +19,7 @@ class FixtureTest extends TestCase
 {
     const USER = 'Nelmio\Alice\support\models\User';
     const STATIC_USER = 'Nelmio\Alice\support\models\StaticUser';
-    const GROUP = 'Nelmio\Alice\support\models\Group';
+    const GROUP = 'Nelmio\Alice\support\models\UserGroup';
     const CONTACT = 'Nelmio\Alice\support\models\Contact';
 
     public function testWillParseFlagsOutOfTheClass(): void
