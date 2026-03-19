@@ -63,9 +63,11 @@ abstract class Base implements MethodInterface
     protected function compilePhp(string $file): string
     {
         $context = $this->context;
+        $fake = $this->createFakerClosure();
 
         ob_start();
-        $fake = $this->createFakerClosure();
+        // The $context and $fake variables are passed to the included file, do not remove them!
+        /** @var @phpstan-ignore-next-line */
         $includeWrapper = static function () use ($file, $context, $fake) {
             return include $file;
         };
