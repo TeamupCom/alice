@@ -11,28 +11,27 @@
 
 namespace Nelmio\Alice\Fixtures\Parser\Methods;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Nelmio\Alice\Fixtures\Loader;
 use Nelmio\Alice\Fixtures\Parser\Methods\Yaml as YamlParser;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
+use Nelmio\Alice\Fixtures\ParameterBag;
 
 class YamlTest extends TestCase
 {
     private static $dir;
 
-    /**
-     * @var YamlParser
-     */
-    private $parser;
+    private YamlParser $parser;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
 
         self::$dir = __DIR__.'/../Files/Yaml';
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         self::$dir = null;
 
@@ -40,12 +39,12 @@ class YamlTest extends TestCase
     }
 
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parser = new YamlParser();
     }
 
-    public function testIsAParserMethod()
+    public function testIsAParserMethod(): void
     {
         $this->assertTrue(
             is_a(
@@ -56,17 +55,15 @@ class YamlTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideFiles
-     */
-    public function testCanParseYamlFiles($file, $expected)
+    #[DataProvider('provideFiles')]
+    public function testCanParseYamlFiles(string $file, bool $expected): void
     {
         $actual = $this->parser->canParse($file);
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function testParseReturnsAYamlArray()
+    public function testParseReturnsAYamlArray(): void
     {
         $data = $this->parser->parse(self::$dir.'/regular_file.yml');
 
@@ -78,7 +75,7 @@ class YamlTest extends TestCase
         );
     }
 
-    public function testParseReturnsInterpretedConstants()
+    public function testParseReturnsInterpretedConstants(): void
     {
         if (!defined('Symfony\\Component\\Yaml\\Yaml::PARSE_CONSTANT')) {
             $this->markTestSkipped('This test needs symfony/yaml v3.2 or higher.');
@@ -97,10 +94,8 @@ class YamlTest extends TestCase
         );
     }
 
-    /**
-     * @group legacy
-     */
-    public function testCanParseAContextToParsedFiles()
+    #[Group('legacy')]
+    public function testCanParseAContextToParsedFiles(): void
     {
         $parser = new YamlParser(['value' => 'test']);
         $data = $parser->parse(self::$dir.'/contextual_file.yml.php');
@@ -114,7 +109,7 @@ class YamlTest extends TestCase
         );
     }
 
-    public function testIncludeFiles()
+    public function testIncludeFiles(): void
     {
         $data = $this->parser->parse(self::$dir.'/include/main.yml');
 
@@ -138,7 +133,7 @@ class YamlTest extends TestCase
         );
     }
 
-    public function testIncludedFilesAreParsedBeforeParsedFile()
+    public function testIncludedFilesAreParsedBeforeParsedFile(): void
     {
         $data = $this->parser->parse(self::$dir.'/include_order/main.yml');
 
@@ -167,7 +162,7 @@ class YamlTest extends TestCase
         );
     }
 
-    public function testLastFixtureDeclaredIsKept()
+    public function testLastFixtureDeclaredIsKept(): void
     {
         $data = $this->parser->parse(self::$dir.'/include_overlap/main.yml');
 
@@ -183,66 +178,65 @@ class YamlTest extends TestCase
         );
     }
 
-    public function testDontReturnParametersWhenNoParameterIsDeclared()
+    public function testDontReturnParametersWhenNoParameterIsDeclared(): void
     {
         $data = $this->parser->parse(self::$dir.'/regular_file.yml');
 
-        $this->assertFalse(isset($data['parameters']));
+        $this->assertArrayNotHasKey('parameters', $data);
     }
 
-    public function testLoadParameters()
+    public function testLoadParameters(): void
     {
-        $parameterBagProphecy = $this->prophesize('Nelmio\Alice\Fixtures\ParameterBag');
-        $parameterBagProphecy->set('foo', 'bar')->shouldBeCalled();
+        $parameterBag = $this->createMock(ParameterBag::class);
+        $parameterBag->expects($this->once())
+            ->method('set')
+            ->with('foo', 'bar');
 
-        $loaderProphecy = $this->prophesize('Nelmio\Alice\Fixtures\Loader');
-        $loaderProphecy->getFakerProcessorMethod()->shouldBeCalled();
-        $loaderProphecy->getParameterBag()->willReturn($parameterBagProphecy->reveal());
-        /* @var Loader $loader */
-        $loader = $loaderProphecy->reveal();
+        $loader = $this->createMock(Loader::class);
+        $loader->expects($this->once())
+            ->method('getFakerProcessorMethod');
+        $loader->expects($this->once())
+            ->method('getParameterBag')
+            ->willReturn($parameterBag);
 
         $parser = new YamlParser($loader);
         $parser->parse(self::$dir.'/file_with_parameters.yml');
-
-        $loaderProphecy->getParameterBag()->shouldHaveBeenCalledTimes(1);
-        $parameterBagProphecy->set(Argument::cetera())->shouldHaveBeenCalledTimes(1);
     }
 
-    public function testLoadParametersOfIncludedFiles()
+    public function testLoadParametersOfIncludedFiles(): void
     {
-        $parameterBagProphecy = $this->prophesize('Nelmio\Alice\Fixtures\ParameterBag');
+        $parameterBag = $this->createMock(ParameterBag::class);
 
         $actual = ['foo' => null];
-        $parameterBagProphecy
-            ->set('foo', 'boo')
-            ->will(function($args) use (&$actual) {
-                $actual['foo'] = $args[1];
-            })
-        ;
-        $parameterBagProphecy->set('ping', 'pong')->shouldBeCalled();
-        $parameterBagProphecy
-            ->set('foo', 'bar')
-            ->will(function($args) use (&$actual) {
-                $actual['foo'] = $args[1];
-            })
-        ;
+        $callCount = 0;
 
-        $loaderProphecy = $this->prophesize('Nelmio\Alice\Fixtures\Loader');
-        $loaderProphecy->getFakerProcessorMethod()->shouldBeCalled();
-        $loaderProphecy->getParameterBag()->willReturn($parameterBagProphecy->reveal());
-        /* @var Loader $loader */
-        $loader = $loaderProphecy->reveal();
+        $parameterBag->expects($this->exactly(3))
+            ->method('set')
+            ->willReturnCallback(function ($key, $value) use (&$actual, &$callCount,) {
+                $expectedCalls = [['foo', 'boo'], ['ping', 'pong'], ['foo', 'bar']];
+                $this->assertEquals($expectedCalls[$callCount][0], $key);
+                $this->assertEquals($expectedCalls[$callCount][1], $value);
+                $callCount++;
+
+                if ($key === 'foo') {
+                    $actual['foo'] = $value;
+                }
+            });
+
+        $loader = $this->createMock(Loader::class);
+        $loader->expects($this->atLeastOnce())
+            ->method('getFakerProcessorMethod');
+        $loader->expects($this->exactly(2))
+            ->method('getParameterBag')
+            ->willReturn($parameterBag);
 
         $parser = new YamlParser($loader);
         $parser->parse(self::$dir.'/include_parameters/main1.yml');
 
         $this->assertEquals('bar', $actual['foo']);
-
-        $loaderProphecy->getParameterBag()->shouldHaveBeenCalledTimes(2);
-        $parameterBagProphecy->set(Argument::cetera())->shouldHaveBeenCalledTimes(3);
     }
 
-    public function provideFiles()
+    public static function provideFiles(): array
     {
         return [
             'YAML file' => [

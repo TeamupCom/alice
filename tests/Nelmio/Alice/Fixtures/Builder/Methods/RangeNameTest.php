@@ -11,114 +11,92 @@
 
 namespace Nelmio\Alice\Fixtures\Builder\Methods;
 
-/**
- * @covers \Nelmio\Alice\Fixtures\Builder\Methods\RangeName
- */
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
+#[CoversClass(RangeName::class)]
 class RangeNameTest extends MethodTestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->method = new RangeName();
     }
 
-    /**
-     * @dataProvider provideSimpleFixtures
-     */
-    public function testCanBuildSimpleFixtures($name)
+    #[DataProvider('provideSimpleFixtures')]
+    public function testCanBuildSimpleFixtures(string $name, array $cases): void
     {
         $this->assertCannotBuild($name);
     }
 
-    /**
-     * @dataProvider provideListFixtures
-     */
-    public function testCanBuildListFixtures($name)
+    #[DataProvider('provideListFixtures')]
+    public function testCanBuildListFixtures(string $name, array $cases): void
     {
         $this->assertCannotBuild($name);
     }
 
-    /**
-     * @dataProvider provideMalformedListFixtures
-     * @group legacy
-     */
-    public function testCanBuildMalformedListFixtures($name)
+    #[DataProvider('provideMalformedListFixtures')]
+    #[Group('legacy')]
+    public function testCanBuildMalformedListFixtures(string $name, array $cases): void
     {
         $this->assertCannotBuild($name);
     }
 
-    /**
-     * @dataProvider provideSegmentFixtures
-     */
-    public function testCanBuildSegmentFixtures($name)
+    #[DataProvider('provideSegmentFixtures')]
+    public function testCanBuildSegmentFixtures(string $name, array $cases): void
     {
         $this->assertCanBuild($name);
     }
 
-    /**
-     * @dataProvider provideDeprecatedSegmentFixtures
-     * @group legacy
-     */
-    public function testCanBuildDeprecatedSegmentFixtures($name)
+    #[DataProvider('provideDeprecatedSegmentFixtures')]
+    #[Group('legacy')]
+    public function testCanBuildDeprecatedSegmentFixtures(string $name, ?array $cases): void
     {
         $this->assertCanBuild($name);
     }
 
-    /**
-     * @dataProvider provideMalformedSegmentFixtures
-     * @group legacy
-     */
-    public function testCanBuildMalformedSegmentFixtures($name)
+    #[DataProvider('provideMalformedSegmentFixtures')]
+    #[Group('legacy')]
+    public function testCanBuildMalformedSegmentFixtures(string $name, ?array $cases): void
     {
         $this->assertCannotBuild($name);
     }
 
-    /**
-     * @dataProvider provideSimpleFixtures
-     */
-    public function testBuildSimpleFixtures($name, $expected)
+    #[DataProvider('provideSimpleFixtures')]
+    public function testBuildSimpleFixtures($name, $expected): void
     {
         $this->markAsInvalidCase();
     }
 
-    /**
-     * @dataProvider provideListFixtures
-     */
-    public function testBuildListFixtures($name, $expected)
+    #[DataProvider('provideListFixtures')]
+    public function testBuildListFixtures($name, $expected): void
     {
         $this->markAsInvalidCase();
     }
 
-    /**
-     * @dataProvider provideMalformedListFixtures
-     * @group legacy
-     */
-    public function testBuildMalformedListFixtures($name, $expected)
+    #[DataProvider('provideMalformedListFixtures')]
+    #[Group('legacy')]
+    public function testBuildMalformedListFixtures($name, $expected): void
     {
         $this->markAsInvalidCase();
     }
 
-    /**
-     * @dataProvider provideSegmentFixtures
-     */
-    public function testBuildSegmentFixtures($name, $expected)
+    #[DataProvider('provideSegmentFixtures')]
+    public function testBuildSegmentFixtures($name, $expected): void
     {
         $this->assertBuiltResultIsTheSame($name, $expected);
     }
 
-    /**
-     * @dataProvider provideDeprecatedSegmentFixtures
-     * @group legacy
-     */
-    public function testBuildDeprecatedSegmentFixtures($name, $expected)
+    #[DataProvider('provideDeprecatedSegmentFixtures')]
+    #[Group('legacy')]
+    public function testBuildDeprecatedSegmentFixtures($name, $expected): void
     {
         $this->assertBuiltResultIsTheSame($name, $expected);
     }
 
-    /**
-     * @dataProvider provideMalformedSegmentFixtures
-     * @group legacy
-     */
-    public function testBuildMalformedSegmentFixtures($name, $expected)
+    #[DataProvider('provideMalformedSegmentFixtures')]
+    #[Group('legacy')]
+    public function testBuildMalformedSegmentFixtures($name, $expected): void
     {
         $this->markAsInvalidCase();
     }

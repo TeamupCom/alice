@@ -11,6 +11,9 @@
 
 namespace Nelmio\Alice\Instances\Populator\Methods;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Nelmio\Alice\Fixtures\Fixture;
 use Nelmio\Alice\Instances\Populator\Fixtures\Direct\CompositeCamelCaseDummy;
 use Nelmio\Alice\Instances\Populator\Fixtures\Direct\CompositeMixedCaseDummy;
@@ -24,11 +27,8 @@ use Nelmio\Alice\Instances\Populator\Fixtures\Direct\SimpleCamelCaseDummy;
 use Nelmio\Alice\Instances\Populator\Fixtures\Direct\SimpleSnakeCaseDummy;
 use Nelmio\Alice\Util\TypeHintChecker;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
 
-/**
- * @covers \Nelmio\Alice\Instances\Populator\Methods\Direct
- */
+#[CoversClass(Direct::class)]
 class DirectTest extends TestCase
 {
     /**
@@ -41,95 +41,75 @@ class DirectTest extends TestCase
      */
     private $direct;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $fixtureProphecy = $this->prophesize('Nelmio\Alice\Fixtures\Fixture');
-        $fixtureProphecy->isLocal()->shouldNotBeCalled();
-        $this->fixture = $fixtureProphecy->reveal();
-        
-        $typeHintCheckerProphecy = $this->prophesize('Nelmio\Alice\Util\TypeHintChecker');
-        $typeHintCheckerProphecy->check(Argument::cetera())->willReturnArgument(2);
-        /** @var TypeHintChecker $typeHintChecker */
-        $typeHintChecker = $typeHintCheckerProphecy->reveal();
+        $this->fixture = $this->createMock(Fixture::class);
+        $this->fixture->expects($this->never())->method('isLocal');
+
+        $typeHintChecker = $this->createStub(TypeHintChecker::class);
+        $typeHintChecker->method('check')->willReturnArgument(2);
 
         $this->direct = new Direct($typeHintChecker);
     }
 
-    /**
-     * @dataProvider provideProperties
-     * @group legacy
-     */
-    public function testCanSet($property, $model, $expected)
+    #[DataProvider('provideProperties')]
+    #[Group('legacy')]
+    public function testCanSet($property, $model, $expected): void
     {
         $actual = $this->direct->canSet($this->fixture, $model, $property, null);
 
         $this->assertSame($expected, $actual);
     }
 
-    public function testSetPropertyViaSetter()
+    public function testSetPropertyViaSetter(): void
     {
         $property = 'name';
         $name = 'John Doe';
 
-        $typeHintCheckerProphecy = $this->prophesize('Nelmio\Alice\Util\TypeHintChecker');
-        $typeHintCheckerProphecy->check(Argument::cetera())->willReturnArgument(2);
-        /** @var TypeHintChecker $typeHintChecker */
-        $typeHintChecker = $typeHintCheckerProphecy->reveal();
+        $typeHintChecker = $this->createMock(TypeHintChecker::class);
+        $typeHintChecker->expects($this->once())->method('check')->willReturnArgument(2);
 
         $direct = new Direct($typeHintChecker);
 
-        $modelProphecy = $this->prophesize('Nelmio\Alice\Instances\Populator\Fixtures\Direct\PublicDummy');
-        $modelProphecy->setName($name)->shouldBeCalled();
-        /** @var PublicDummy $model */
-        $model = $modelProphecy->reveal();
+        $model = $this->createMock(PublicDummy::class);
+        $model->expects($this->once())->method('setName')->with($name);
 
         $direct->set($this->fixture, $model, $property, $name);
-
-        $typeHintCheckerProphecy->check(Argument::cetera())->shouldHaveBeenCalledTimes(1);
-        $modelProphecy->setName(Argument::any())->shouldHaveBeenCalledTimes(1);
     }
 
-    /**
-     * @dataProvider provideModelsToSet
-     */
-    public function testSetProperty($model, $property, $value, $expectedProperty)
+    #[DataProvider('provideModelsToSet')]
+    public function testSetProperty($model, $property, $value, $expectedProperty): void
     {
         $this->direct->set($this->fixture, $model, $property, $value);
 
-        self::assertEquals($value, $model->$expectedProperty);
+        $this->assertEquals($value, $model->$expectedProperty);
     }
 
-    /**
-     * @dataProvider provideLegacyModelsToSet
-     */
-    public function testLegacySetProperty($model, $property, $value, $expectedProperty)
+    #[DataProvider('provideLegacyModelsToSet')]
+    public function testLegacySetProperty($model, $property, $value, $expectedProperty): void
     {
         $this->direct->set($this->fixture, $model, $property, $value);
 
-        self::assertEquals($value, $model->$expectedProperty);
+        $this->assertEquals($value, $model->$expectedProperty);
     }
 
-    /**
-     * @group legacy
-     */
-    public function testSetPropertyViaPrivateSetter()
+    #[Group('legacy')]
+    public function testSetPropertyViaPrivateSetter(): void
     {
         $this->direct->set($this->fixture, $model = new PrivateDummy(), 'name', $value = 'John Doe');
 
-        self::assertEquals($value, $model->name);
+        $this->assertEquals($value, $model->name);
     }
 
-    /**
-     * @group legacy
-     */
-    public function testSetPropertyViaProtectedSetter()
+    #[Group('legacy')]
+    public function testSetPropertyViaProtectedSetter(): void
     {
         $this->direct->set($this->fixture, $model = new ProtectedDummy(), 'name', $value = 'John Doe');
 
-        self::assertEquals($value, $model->name);
+        $this->assertEquals($value, $model->name);
     }
 
-    public function provideProperties()
+    public static function provideProperties()
     {
         return [
             'simple property with camelCase setter' => [
@@ -206,7 +186,7 @@ class DirectTest extends TestCase
         ];
     }
 
-    public function provideModelsToSet()
+    public static function provideModelsToSet()
     {
         $value = 'John Doe';
 
@@ -253,7 +233,7 @@ class DirectTest extends TestCase
         ];
     }
 
-    public function provideLegacyModelsToSet()
+    public static function provideLegacyModelsToSet()
     {
         $value = 'John Doe';
 

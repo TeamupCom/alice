@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 
 class FakerTest extends TestCase
 {
-    public function testAddProvider()
+    public function testAddProvider(): void
     {
         $faker = new Faker([]);
         $faker->addProvider(new FooProvider());

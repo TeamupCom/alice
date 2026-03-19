@@ -44,7 +44,10 @@ class Php extends Base
     {
         $context = $this->context;
         $fake = $this->createFakerClosure();
-        $includeWrapper = function () use ($file, $context, $fake) {
+
+        // The $context and $fake variables are passed to the included file, do not remove them!
+        /** @var @phpstan-ignore-next-line */
+        $includeWrapper = static function () use ($file, $context, $fake) {
             ob_start();
             $res = include $file;
             ob_end_clean();

@@ -59,18 +59,16 @@ abstract class Base implements MethodInterface
 
     /**
      * Returns a string of text after compiling all the PHP code in the fixture
-     *
-     * @param string $file
-     *
-     * @return string
      */
-    protected function compilePhp($file)
+    protected function compilePhp(string $file): string
     {
         $context = $this->context;
+        $fake = $this->createFakerClosure();
 
         ob_start();
-        $fake = $this->createFakerClosure();
-        $includeWrapper = function () use ($file, $context, $fake) {
+        // The $context and $fake variables are passed to the included file, do not remove them!
+        /** @var @phpstan-ignore-next-line */
+        $includeWrapper = static function () use ($file, $context, $fake) {
             return include $file;
         };
         $includeWrapper();
@@ -88,18 +86,12 @@ abstract class Base implements MethodInterface
         }
         $faker = $this->context->getFakerProcessorMethod();
 
-        return function () use ($faker) {
+        return static function () use ($faker) {
             return call_user_func_array([$faker, 'fake'], func_get_args());
         };
     }
 
-    /**
-     * @param array  $data
-     * @param string $filename
-     *
-     * @return mixed
-     */
-    protected function processIncludes($data, $filename)
+    protected function processIncludes(array $data, string $filename): mixed
     {
         if (isset($data['include'])) {
             foreach ($data['include'] as $include) {

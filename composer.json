@@ -19,21 +19,27 @@
         }
     ],
     "require": {
-        "php": "^5.6||^7.0||^8.0",
-        "fakerphp/faker": "^1.5",
-        "symfony/yaml": "^5||^6||^7"
+        "php": "^8.4",
+        "psr/log": "^1 || ^2 || ^3",
+        "fakerphp/faker": "^1.24",
+        "symfony/yaml": "^7.4 || ^8.0"
     },
     "require-dev": {
         "doctrine/common": "^2.3",
-        "symfony/phpunit-bridge": "^3.0",
-        "symfony/property-access": "^2.2||^3.0",
-        "phpspec/prophecy": "^1.5.0",
-        "phpunit/phpunit": "^5.6||^6.0"
+        "phpunit/phpunit": "^12.5",
+        "rector/rector": "^2.3",
+        "phpstan/phpstan": "^2.1"
     },
     "autoload": {
         "psr-4": { "Nelmio\\Alice\\": "src/Nelmio/Alice" }
     },
     "autoload-dev": {
         "psr-4": { "Nelmio\\Alice\\": "tests/Nelmio/Alice" }
+    },
+    "scripts": {
+        "phpunit": "vendor/bin/phpunit",
+        "phpstan:check": "vendor/bin/phpstan analyse",
+        "rector:check": "vendor/bin/rector --dry-run",
+        "rector:fix": "vendor/bin/rector"
     }
 }

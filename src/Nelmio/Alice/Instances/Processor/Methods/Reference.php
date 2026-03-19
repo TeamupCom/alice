@@ -16,7 +16,7 @@ use Nelmio\Alice\Instances\Processor\ProcessableInterface;
 
 class Reference implements MethodInterface
 {
-    private static $LEGACY_REGEX = '/^[\',\"]?'
+    private const string LEGACY_REGEX = '/^[\',\"]?'
         .'(?:(?<multi>\d+)x\ )?'
         .'@(?<reference>[\p{L}\d\_\.\*\/\-]+)'
         .'(?<sequence>\{(?P<from>\d+)\.\.(?P<to>\d+)\})?'
@@ -24,7 +24,7 @@ class Reference implements MethodInterface
         .'[\',\"]?$'
         .'/xi'
     ;
-    private static $REGEX = '/^' // modified line
+    private const string REGEX = '/^' // modified line
         .'(?:(?<multi>\d+)x\ )?'
         .'@(?<reference>[\p{L}\d\_\.\*\/\-]+)'
         .'(?<sequence>\{(?P<from>\d+)\.\.(?P<to>\d+)\})?'
@@ -55,7 +55,7 @@ class Reference implements MethodInterface
     {
         return
             is_string($processable->getValue())
-            && $processable->valueMatches(static::$LEGACY_REGEX)
+            && $processable->valueMatches(self::LEGACY_REGEX)
         ;
     }
 
@@ -68,18 +68,9 @@ class Reference implements MethodInterface
             ? (int) $processable->getMatch('multi')
             : null
         ;
-        $property = (null !== $processable->getMatch('property'))
-            ? $processable->getMatch('property')
-            : null
-        ;
-        $sequence = (null !== $processable->getMatch('sequence'))
-            ? $processable->getMatch('sequence')
-            : null
-        ;
-        $reference = (null !== $processable->getMatch('escaped_reference'))
-            ? $processable->getMatch('escaped_reference')
-            : $processable->getMatch('reference')
-        ;
+        $property = $processable->getMatch('property');
+        $sequence = $processable->getMatch('sequence');
+        $reference = $processable->getMatch('escaped_reference') ?? $processable->getMatch('reference')       ;
         $this->checkEscapedReference($processable);
 
         if (strpos($reference, '*')) {
@@ -108,7 +99,7 @@ class Reference implements MethodInterface
     private function checkEscapedReference(ProcessableInterface $processable)
     {
         $clone = clone $processable;
-        if (false === $clone->valueMatches(self::$REGEX)) {
+        if (false === $clone->valueMatches(self::REGEX)) {
             @trigger_error(
                 sprintf(
                     'A quoted reference "%s" has been given. This is deprecated since 2.3.0 and will throw an exception'

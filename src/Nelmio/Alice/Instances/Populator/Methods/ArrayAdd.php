@@ -11,6 +11,7 @@
 
 namespace Nelmio\Alice\Instances\Populator\Methods;
 
+use Symfony\Component\String\Inflector\EnglishInflector;
 use Nelmio\Alice\Fixtures\Fixture;
 use Nelmio\Alice\Util\TypeHintChecker;
 
@@ -106,10 +107,10 @@ class ArrayAdd implements MethodInterface
     /**
      * Tries to detect a singularize method that is available.
      */
-    private function detectSingularizeMethod()
+    private function detectSingularizeMethod(): void
     {
-        if (class_exists('Symfony\Component\String\Inflector\EnglishInflector')) {
-            $inflector = new \Symfony\Component\String\Inflector\EnglishInflector();
+        if (class_exists(EnglishInflector::class)) {
+            $inflector = new EnglishInflector();
             $this->singularizer = [$inflector, 'singularize'];
 
             return;

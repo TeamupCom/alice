@@ -11,10 +11,12 @@
 
 namespace Nelmio\Alice\Fixtures\Parser\Methods;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Nelmio\Alice\Fixtures\Loader;
+use Nelmio\Alice\Fixtures\ParameterBag;
 use Nelmio\Alice\Fixtures\Parser\Methods\Php as PhpParser;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
 
 class PhpTest extends TestCase
 {
@@ -25,14 +27,14 @@ class PhpTest extends TestCase
      */
     private $parser;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
 
         self::$dir = __DIR__.'/../Files/Php';
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         self::$dir = null;
 
@@ -40,33 +42,31 @@ class PhpTest extends TestCase
     }
 
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parser = new PhpParser();
     }
 
-    public function testIsAParserMethod()
+    public function testIsAParserMethod(): void
     {
         $this->assertTrue(
             is_a(
-                'Nelmio\Alice\Fixtures\Parser\Methods\Php',
-                'Nelmio\Alice\Fixtures\Parser\Methods\MethodInterface',
+                PhpParser::class,
+                MethodInterface::class,
                 true
             )
         );
     }
 
-    /**
-     * @dataProvider provideFiles
-     */
-    public function testCanParsePhpFiles($file, $expected)
+    #[DataProvider('provideFiles')]
+    public function testCanParsePhpFiles($file, $expected): void
     {
         $actual = $this->parser->canParse($file);
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function testParseReturnsAPhpArray()
+    public function testParseReturnsAPhpArray(): void
     {
         $data = $this->parser->parse(self::$dir.'/regular_file.php');
 
@@ -78,10 +78,8 @@ class PhpTest extends TestCase
         );
     }
 
-    /**
-     * @group legacy
-     */
-    public function testCanParseAContextToParsedFiles()
+    #[Group('legacy')]
+    public function testCanParseAContextToParsedFiles(): void
     {
         $parser = new PhpParser(['value' => 'test']);
         $data = $parser->parse(self::$dir.'/contextual_file.php');
@@ -95,14 +93,14 @@ class PhpTest extends TestCase
         );
     }
 
-    public function testThrowExceptionIfFileDoesntReturnArray()
+    public function testThrowExceptionIfFileDoesntReturnArray(): void
     {
         $file = self::$dir.'/no_return.php';
         try {
             $this->parser->parse($file);
             $this->fail(sprintf('Expected parsing file "%s" to throw an exception', $file));
         } catch (\UnexpectedValueException $exception) {
-            $this->assertEquals(
+            $this->assertSame(
                 sprintf('Included file "%s" must return an array of data', $file),
                 $exception->getMessage()
             );
@@ -114,14 +112,14 @@ class PhpTest extends TestCase
 
             $this->fail(sprintf('Expected parsing file "%s" to throw an exception', $file));
         } catch (\UnexpectedValueException $exception) {
-            $this->assertEquals(
+            $this->assertSame(
                 sprintf('Included file "%s" must return an array of data', $file),
                 $exception->getMessage()
             );
         }
     }
 
-    public function testIncludeFiles()
+    public function testIncludeFiles(): void
     {
         $data = $this->parser->parse(self::$dir.'/include/main.php');
 
@@ -145,7 +143,7 @@ class PhpTest extends TestCase
         );
     }
 
-    public function testIncludedFilesAreParsedBeforeParsedFile()
+    public function testIncludedFilesAreParsedBeforeParsedFile(): void
     {
         $data = $this->parser->parse(self::$dir.'/include_order/main.php');
 
@@ -174,7 +172,7 @@ class PhpTest extends TestCase
         );
     }
 
-    public function testLastFixtureDeclaredIsKept()
+    public function testLastFixtureDeclaredIsKept(): void
     {
         $data = $this->parser->parse(self::$dir.'/include_overlap/main.php');
 
@@ -190,59 +188,49 @@ class PhpTest extends TestCase
         );
     }
 
-    public function testLoadParameters()
+    public function testLoadParameters(): void
     {
-        $parameterBagProphecy = $this->prophesize('Nelmio\Alice\Fixtures\ParameterBag');
-        $parameterBagProphecy->set('foo', 'bar')->shouldBeCalled();
+        $parameterBag = $this->createMock(ParameterBag::class);
+        $parameterBag->expects($this->once())->method('set')->with('foo', 'bar');
 
-        $loaderProphecy = $this->prophesize('Nelmio\Alice\Fixtures\Loader');
-        $loaderProphecy->getFakerProcessorMethod()->shouldBeCalled();
-        $loaderProphecy->getParameterBag()->willReturn($parameterBagProphecy->reveal());
-        /* @var Loader $loader */
-        $loader = $loaderProphecy->reveal();
+        $loader = $this->createMock(Loader::class);
+        $loader->expects($this->once())->method('getFakerProcessorMethod');
+        $loader->expects($this->once())->method('getParameterBag')->willReturn($parameterBag);
 
         $parser = new PhpParser($loader);
         $parser->parse(self::$dir.'/file_with_parameters.php');
-
-        $loaderProphecy->getParameterBag()->shouldHaveBeenCalledTimes(1);
-        $parameterBagProphecy->set(Argument::cetera())->shouldHaveBeenCalledTimes(1);
     }
 
-    public function testLoadParametersOfIncludedFiles()
+    public function testLoadParametersOfIncludedFiles(): void
     {
-        $parameterBagProphecy = $this->prophesize('Nelmio\Alice\Fixtures\ParameterBag');
-
         $actual = ['foo' => null];
-        $parameterBagProphecy
-            ->set('foo', 'boo')
-            ->will(function($args) use (&$actual) {
-                $actual['foo'] = $args[1];
-            })
-        ;
-        $parameterBagProphecy->set('ping', 'pong')->shouldBeCalled();
-        $parameterBagProphecy
-            ->set('foo', 'bar')
-            ->will(function($args) use (&$actual) {
-                $actual['foo'] = $args[1];
-            })
-        ;
+        $callCount = 0;
 
-        $loaderProphecy = $this->prophesize('Nelmio\Alice\Fixtures\Loader');
-        $loaderProphecy->getFakerProcessorMethod()->shouldBeCalled();
-        $loaderProphecy->getParameterBag()->willReturn($parameterBagProphecy->reveal());
-        /* @var Loader $loader */
-        $loader = $loaderProphecy->reveal();
+        $parameterBag = $this->createMock(ParameterBag::class);
+        $parameterBag->expects($this->exactly(3))
+            ->method('set')
+            ->willReturnCallback(function ($key, $value) use (&$actual, &$callCount) {
+                $expectedCalls = [['foo', 'boo'], ['ping', 'pong'], ['foo', 'bar']];
+                $this->assertEquals($expectedCalls[$callCount][0], $key);
+                $this->assertEquals($expectedCalls[$callCount][1], $value);
+                $callCount++;
+
+                if ($key === 'foo') {
+                    $actual['foo'] = $value;
+                }
+            });
+
+        $loader = $this->createMock(Loader::class);
+        $loader->expects($this->atLeastOnce())->method('getFakerProcessorMethod');
+        $loader->expects($this->exactly(2))->method('getParameterBag')->willReturn($parameterBag);
 
         $parser = new PhpParser($loader);
         $parser->parse(self::$dir.'/include_parameters/main1.php');
 
         $this->assertEquals('bar', $actual['foo']);
-
-        $loaderProphecy->getParameterBag()->shouldHaveBeenCalledTimes(2);
-        $parameterBagProphecy->set(Argument::cetera())->shouldHaveBeenCalledTimes(3);
     }
 
-    public function provideFiles()
+    public static function provideFiles()
     {
         return [
             'php file' => [

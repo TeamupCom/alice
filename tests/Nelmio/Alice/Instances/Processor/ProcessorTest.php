@@ -28,16 +28,14 @@ class ProcessorTest extends TestCase
      */
     protected $processor;
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage All methods passed into Processor must implement MethodInterface.
-     */
-    public function testOnlyMethodInterfacesCanBeUsedToInstantiateTheProcessor()
+    public function testOnlyMethodInterfacesCanBeUsedToInstantiateTheProcessor(): void
     {
-        new Processor(new Collection, ['CustomProcessor'], new ParameterBag());
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("All methods passed into Processor must implement MethodInterface.");
+        new Processor(new Collection, ['CustomProcessor']);
     }
 
-    public function testAddProcessor()
+    public function testAddProcessor(): void
     {
         $processable = new Processable('uppercase processor:test my custom processor');
 
@@ -47,14 +45,14 @@ class ProcessorTest extends TestCase
         $this->assertEquals('TEST MY CUSTOM PROCESSOR', $result);
     }
 
-    public function testAddProcessorWillSetObjectsIfSetterExists()
+    public function testAddProcessorWillSetObjectsIfSetterExists(): void
     {
         $this->createProcessor();
         $this->processor->addProcessor($custom = new CustomProcessor);
         $this->assertEquals($this->objects, $custom->objects);
     }
 
-    public function testAddProcessorWillSetTheProcessorIfSetterExists()
+    public function testAddProcessorWillSetTheProcessorIfSetterExists(): void
     {
         $this->createProcessor();
         $this->processor->addProcessor($custom = new CustomProcessor);
@@ -69,6 +67,6 @@ class ProcessorTest extends TestCase
         ];
         $options = array_merge($defaults, $options);
 
-        return $this->processor = new Processor($this->objects = $options['objects'], $options['methods'], new ParameterBag());
+        return $this->processor = new Processor($this->objects = $options['objects'], $options['methods']);
     }
 }

@@ -1,4 +1,4 @@
-Nelmio\Alice\support\models\Group:
+Nelmio\Alice\support\models\UserGroup:
     group_{@group*}:
         name: <company()>
         members: '@user{1..3}'

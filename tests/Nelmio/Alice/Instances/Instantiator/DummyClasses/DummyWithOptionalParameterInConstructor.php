@@ -13,6 +13,7 @@ namespace Nelmio\Alice\Instances\Instantiator\DummyClasses;
 
 class DummyWithOptionalParameterInConstructor
 {
+    /** @phpstan-ignore constructor.unusedParameter */
     public function __construct($optionalParam = 10)
     {
     }

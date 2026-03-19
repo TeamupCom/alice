@@ -22,7 +22,7 @@ class Instantiator
     /**
      * @var MethodInterface[]
      **/
-    protected $methods;
+    private array $methods;
 
     /**
      * @param MethodInterface[] $methods

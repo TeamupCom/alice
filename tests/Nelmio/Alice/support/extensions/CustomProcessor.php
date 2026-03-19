@@ -9,6 +9,9 @@ use Nelmio\Alice\Instances\Processor\Processor;
 
 class CustomProcessor implements ProcessorInterface
 {
+    public Processor $processor;
+    public Collection $objects;
+
     public function setObjects(Collection $objects)
     {
         $this->objects = $objects;

@@ -14,7 +14,7 @@ namespace Nelmio\Alice\Fixtures\Parser;
 use Nelmio\Alice\support\extensions\CustomParser;
 use PHPUnit\Framework\TestCase;
 
-class ParserTest extends TestCase
+class FixtureParserTest extends TestCase
 {
     /**
      * @var Parser
@@ -31,7 +31,7 @@ class ParserTest extends TestCase
         return $this->parser = new Parser($options['methods']);
     }
 
-    public function testAddParser()
+    public function testAddParser(): void
     {
         $this->createParser();
         $this->parser->addParser(new CustomParser);
@@ -47,12 +47,10 @@ class ParserTest extends TestCase
         $this->assertEquals($expectedData, $data);
     }
 
-    /**
-     * @expectedException        InvalidArgumentException
-     * @expectedExceptionMessage All parsers passed into Parser must implement MethodInterface.
-     */
-    public function testOnlyMethodInterfacesCanBeUsedToInstantiateTheParser()
+    public function testOnlyMethodInterfacesCanBeUsedToInstantiateTheParser(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("All parsers passed into Parser must implement MethodInterface.");
         $parser = new Parser(['CustomParser']);
     }
 }

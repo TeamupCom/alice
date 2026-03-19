@@ -7,7 +7,7 @@ return [
             'favoriteNumber' => 42,
         ],
     ],
-    'Nelmio\Alice\support\models\Group' => [
+    'Nelmio\Alice\support\models\UserGroup' => [
         'group1' => [
             'owner' => 1
         ],

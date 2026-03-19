@@ -15,7 +15,7 @@ class StaticUser
 
     public static function create($email)
     {
-        return new static(strtok($email, '@'), $email);
+        return new self(strtok($email, '@'), $email);
     }
 
     public static function bogusCreate($username, $email)

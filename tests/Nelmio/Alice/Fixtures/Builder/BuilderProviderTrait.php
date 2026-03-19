@@ -13,32 +13,32 @@ namespace Nelmio\Alice\Fixtures\Builder;
 
 trait BuilderProviderTrait
 {
-    public  function provideSimpleFixtures()
+    public static function provideSimpleFixtures(): array
     {
         return Reference::getSimpleFixtures();
     }
 
-    public function provideListFixtures()
+    public static function provideListFixtures(): array
     {
         return Reference::getListFixtures();
     }
 
-    public function provideMalformedListFixtures()
+    public static function provideMalformedListFixtures(): array
     {
         return Reference::getMalformedListFixtures();
     }
 
-    public function provideSegmentFixtures()
+    public static function provideSegmentFixtures(): array
     {
         return Reference::getSegmentFixtures();
     }
 
-    public function provideDeprecatedSegmentFixtures()
+    public static function provideDeprecatedSegmentFixtures(): array
     {
         return Reference::getDeprecatedSegmentFixtures();
     }
 
-    public function provideMalformedSegmentFixtures()
+    public static function provideMalformedSegmentFixtures(): array
     {
         return Reference::getMalformedSegmentFixtures();
     }

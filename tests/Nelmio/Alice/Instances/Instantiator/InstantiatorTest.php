@@ -34,7 +34,7 @@ class InstantiatorTest extends TestCase
         return $this->instantiator = new Instantiator($options['methods']);
     }
 
-    public function testAddInstantiator()
+    public function testAddInstantiator(): void
     {
         $class = self::USER;
         $fixture = new Fixture($class, 'referenced', [], null);
@@ -42,16 +42,14 @@ class InstantiatorTest extends TestCase
         $this->createInstantiator();
         $this->instantiator->addInstantiator(new CustomInstantiator);
         $object = $this->instantiator->instantiate($fixture);
-        $this->assertTrue($object instanceof $class);
-        $this->assertFalse(is_null($object->uuid));
+        $this->assertInstanceOf($class, $object);
+        $this->assertNotNull($object->uuid);
     }
 
-    /**
-     * @expectedException        InvalidArgumentException
-     * @expectedExceptionMessage All methods passed into Instantiator must implement MethodInterface.
-     */
-    public function testOnlyMethodInterfacesCanBeUsedToInstantiateTheInstantiator()
+    public function testOnlyMethodInterfacesCanBeUsedToInstantiateTheInstantiator(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("All methods passed into Instantiator must implement MethodInterface.");
         $instantiator = new Instantiator(['CustomInstantiator']);
     }
 }

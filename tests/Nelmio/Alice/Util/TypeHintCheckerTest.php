@@ -20,14 +20,14 @@ class TypeHintCheckerTest extends TestCase
 
     protected $typeHintChecker;
 
-    public function setUp()
+    public function setUp(): void
     {
         $persister = new TestPersister;
         $this->typeHintChecker = new TypeHintChecker;
         $this->typeHintChecker->setPersister($persister);
     }
 
-    public function testAcceptVariableLengthArgumentList()
+    public function testAcceptVariableLengthArgumentList(): void
     {
         $class = self::DYNAMIC_CONSTRUCTOR_CLASS;
         $value = 'A';

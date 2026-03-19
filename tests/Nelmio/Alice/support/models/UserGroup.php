@@ -2,7 +2,7 @@
 
 namespace Nelmio\Alice\support\models;
 
-class Group
+class UserGroup
 {
     private $name;
     private $sortName;

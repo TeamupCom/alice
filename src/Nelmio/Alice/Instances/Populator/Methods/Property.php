@@ -15,17 +15,11 @@ use Nelmio\Alice\Fixtures\Fixture;
 
 class Property implements MethodInterface
 {
-    /**
-     * @inheritDoc
-     */
     public function canSet(Fixture $fixture, $object, $property, $value)
     {
         return (bool) $this->findClass($object, $property);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function set(Fixture $fixture, $object, $property, $value)
     {
         $refl = new \ReflectionProperty($this->findClass($object, $property), $property);
@@ -37,24 +31,20 @@ class Property implements MethodInterface
 
         }
 
-        $refl->setAccessible(true);
         $refl->setValue($object, $value);
     }
 
     /**
      * Finds which class defines the property.
-     *
-     * @param mixed  $class
-     * @param string $property
-     *
-     * @return string
      */
-    private function findClass($class, $property)
+    private function findClass(object|string $class, string $property): object|string|null
     {
         do {
             if (property_exists($class, $property)) {
                 return $class;
             }
         } while ($class = get_parent_class($class));
+
+        return null;
     }
 }

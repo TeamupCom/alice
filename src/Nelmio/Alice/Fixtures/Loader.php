@@ -11,11 +11,38 @@
 
 namespace Nelmio\Alice\Fixtures;
 
+use Nelmio\Alice\Fixtures\Parser\Parser;
+use Nelmio\Alice\Fixtures\Builder\Builder;
+use Nelmio\Alice\Instances\Instantiator\Instantiator;
+use Nelmio\Alice\Instances\Processor\Methods\MethodInterface as ProcessorMethodInterface;
+use Nelmio\Alice\Instances\Processor\Methods\Parameterized;
+use Nelmio\Alice\Instances\Processor\Methods\ArrayValue;
+use Nelmio\Alice\Instances\Processor\Methods\Conditional;
+use Nelmio\Alice\Instances\Processor\Methods\Reference;
+use Nelmio\Alice\Instances\Processor\Methods\UnescapeAt;
+use Nelmio\Alice\Fixtures\Parser\Methods\Php;
+use Nelmio\Alice\Fixtures\Parser\Methods\Yaml;
+use Nelmio\Alice\Fixtures\Parser\Methods\MethodInterface as ParserMethodInterface;
+use Nelmio\Alice\Fixtures\Builder\Methods\ReferenceRangeName;
+use Nelmio\Alice\Fixtures\Builder\Methods\RangeName;
+use Nelmio\Alice\Fixtures\Builder\Methods\MethodInterface as BuilderMethodInterface;
+use Nelmio\Alice\Fixtures\Builder\Methods\ListName;
+use Nelmio\Alice\Fixtures\Builder\Methods\SimpleName;
+use Nelmio\Alice\Instances\Instantiator\Methods\MethodInterface as InstantiatorMethodInterface;
+use Nelmio\Alice\Instances\Instantiator\Methods\ReflectionWithoutConstructor;
+use Nelmio\Alice\Instances\Instantiator\Methods\ReflectionWithConstructor;
+use Nelmio\Alice\Instances\Instantiator\Methods\EmptyConstructor;
+use Nelmio\Alice\Instances\Populator\Methods\ArrayAdd;
+use Nelmio\Alice\Instances\Populator\Methods\Custom;
+use Nelmio\Alice\Instances\Populator\Methods\ArrayDirect;
+use Nelmio\Alice\Instances\Populator\Methods\Direct;
+use Nelmio\Alice\Instances\Populator\Methods\Property;
+use Nelmio\Alice\Instances\Populator\Methods\MagicCall;
+use Nelmio\Alice\Instances\Populator\Methods\MethodInterface as PopulatorMethodInterface;
 use Nelmio\Alice\Instances\Collection;
-use Nelmio\Alice\Instances\Instantiator;
 use Nelmio\Alice\Instances\Populator;
-use Nelmio\Alice\Instances\Processor;
 use Nelmio\Alice\Instances\Processor\Methods\Faker;
+use Nelmio\Alice\Instances\Processor;
 use Nelmio\Alice\Instances\Processor\Providers\IdentityProvider;
 use Nelmio\Alice\PersisterInterface;
 use Nelmio\Alice\Util\TypeHintChecker;
@@ -103,15 +130,15 @@ class Loader
             $this->getBuiltInProcessors($allProviders, $locale)
         );
 
-        $this->parser = new Parser\Parser(
+        $this->parser = new Parser(
             $this->getBuiltInParsers()
         );
 
-        $this->builder = new Builder\Builder(
+        $this->builder = new Builder(
             $this->getBuiltInBuilders()
         );
 
-        $this->instantiator = new Instantiator\Instantiator(
+        $this->instantiator = new Instantiator(
             $this->getBuiltInInstantiators($this->processor, $this->typeHintChecker)
         );
 
@@ -190,7 +217,7 @@ class Loader
      *
      * @param object[] $references Array of object where the key is the name of the reference
      */
-    public function setReferences(array $references)
+    public function setReferences(array $references): void
     {
         $this->objects->clear();
         foreach ($references as $name => $object) {
@@ -200,61 +227,48 @@ class Loader
 
     /**
      * adds a processor for processing extensions
-     *
-     * @param Processor\Methods\MethodInterface $processor
      **/
-    public function addProcessor(Processor\Methods\MethodInterface $processor)
+    public function addProcessor(ProcessorMethodInterface $processor)
     {
         $this->processor->addProcessor($processor);
     }
 
     /**
      * adds a parser for fixture parsing extensions
-     *
-     * @param Parser\Methods\MethodInterface $parser
      **/
-    public function addParser(Parser\Methods\MethodInterface $parser)
+    public function addParser(ParserMethodInterface $parser)
     {
         $this->parser->addParser($parser);
     }
 
     /**
      * adds a builder for fixture building extensions
-     *
-     * @param Builder\Methods\MethodInterface $builder
      **/
-    public function addBuilder(Builder\Methods\MethodInterface $builder)
+    public function addBuilder(BuilderMethodInterface $builder)
     {
         $this->builder->addBuilder($builder);
     }
 
     /**
      * Adds an instantiator for instantiation extensions.
-     *
-     * @param Instantiator\Methods\MethodInterface $instantiator
      **/
-    public function addInstantiator(Instantiator\Methods\MethodInterface $instantiator)
+    public function addInstantiator(InstantiatorMethodInterface $instantiator)
     {
         $this->instantiator->addInstantiator($instantiator);
     }
 
     /**
      * adds a populator for population extensions
-     *
-     * @param Populator\Methods\MethodInterface $populator
      **/
-    public function addPopulator(Populator\Methods\MethodInterface $populator)
+    public function addPopulator(PopulatorMethodInterface $populator)
     {
         $this->populator->addPopulator($populator);
     }
 
     /**
      * parses a file at the given filename
-     *
-     * @param  string $filename
-     * @return array  data
      */
-    protected function parseFile($filename)
+    protected function parseFile(string $filename): ?array
     {
         return $this->parser->parse($filename);
     }
@@ -265,7 +279,7 @@ class Loader
      * @param  array     $rawData
      * @return Fixture[]
      */
-    protected function buildFixtures(array $rawData)
+    protected function buildFixtures(array $rawData): array
     {
         $fixtures = [];
 
@@ -284,7 +298,7 @@ class Loader
      *
      * @param Fixture[] $fixtures
      */
-    protected function instantiateFixtures(array $fixtures)
+    protected function instantiateFixtures(array $fixtures): void
     {
         foreach ($fixtures as $fixture) {
             $this->objects->set(
@@ -362,7 +376,7 @@ class Loader
     }
 
     /**
-     * @return Processor\Methods\Faker
+     * @return Faker
      */
     public function getFakerProcessorMethod()
     {
@@ -388,15 +402,15 @@ class Loader
      */
     private function getBuiltInProcessors(array $providers, $locale)
     {
-        $this->fakerProcessorMethod = new Processor\Methods\Faker($providers, $locale);
+        $this->fakerProcessorMethod = new Faker($providers, $locale);
 
         return [
-            new Processor\Methods\Parameterized($this->parameterBag),
-            new Processor\Methods\ArrayValue(),
-            new Processor\Methods\Conditional(),
+            new Parameterized($this->parameterBag),
+            new ArrayValue(),
+            new Conditional(),
             $this->fakerProcessorMethod,
-            new Processor\Methods\Reference(),
-            new Processor\Methods\UnescapeAt(),
+            new Reference(),
+            new UnescapeAt(),
         ];
     }
 
@@ -408,40 +422,37 @@ class Loader
     private function getBuiltInParsers()
     {
         return [
-            new Parser\Methods\Php($this),
-            new Parser\Methods\Yaml($this),
+            new Php($this),
+            new Yaml($this),
         ];
     }
 
     /**
      * returns a list of all the default builder methods
      *
-     * @return array
+     * @return BuilderMethodInterface[]
      */
-    private function getBuiltInBuilders()
+    private function getBuiltInBuilders(): array
     {
         return [
-            new Builder\Methods\ReferenceRangeName($this->objects),
-            new Builder\Methods\RangeName(),
-            new Builder\Methods\ListName(),
-            new Builder\Methods\SimpleName(),
+            new ReferenceRangeName($this->objects),
+            new RangeName(),
+            new ListName(),
+            new SimpleName(),
         ];
     }
 
     /**
      * Returns a list of all the default instantiator methods.
      *
-     * @param Processor\Processor $processor
-     * @param TypeHintChecker     $typeHintChecker
-     *
-     * @return Instantiator\Methods\MethodInterface[]
+     * @return InstantiatorMethodInterface[]
      */
-    private function getBuiltInInstantiators(Processor\Processor $processor, TypeHintChecker $typeHintChecker)
+    private function getBuiltInInstantiators(Processor\Processor $processor, TypeHintChecker $typeHintChecker): array
     {
         return [
-            new Instantiator\Methods\ReflectionWithoutConstructor(),
-            new Instantiator\Methods\ReflectionWithConstructor($processor, $typeHintChecker),
-            new Instantiator\Methods\EmptyConstructor(),
+            new ReflectionWithoutConstructor(),
+            new ReflectionWithConstructor($processor, $typeHintChecker),
+            new EmptyConstructor(),
         ];
     }
 
@@ -451,15 +462,15 @@ class Loader
      * @param  TypeHintChecker $typeHintChecker
      * @return array
      */
-    private function getBuiltInPopulators(TypeHintChecker $typeHintChecker)
+    private function getBuiltInPopulators(TypeHintChecker $typeHintChecker): array
     {
         return [
-            new Populator\Methods\ArrayAdd($typeHintChecker),
-            new Populator\Methods\Custom(),
-            new Populator\Methods\ArrayDirect($typeHintChecker),
-            new Populator\Methods\Direct($typeHintChecker),
-            new Populator\Methods\Property(),
-            new Populator\Methods\MagicCall(),
+            new ArrayAdd($typeHintChecker),
+            new Custom(),
+            new ArrayDirect($typeHintChecker),
+            new Direct($typeHintChecker),
+            new Property(),
+            new MagicCall(),
         ];
     }
 }
