@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.4",
         "psr/log": "^1 || ^2 || ^3",
         "fakerphp/faker": "^1.24",
         "symfony/yaml": "^7.4 || ^8.0"
