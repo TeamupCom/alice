@@ -68,18 +68,9 @@ class Reference implements MethodInterface
             ? (int) $processable->getMatch('multi')
             : null
         ;
-        $property = (null !== $processable->getMatch('property'))
-            ? $processable->getMatch('property')
-            : null
-        ;
-        $sequence = (null !== $processable->getMatch('sequence'))
-            ? $processable->getMatch('sequence')
-            : null
-        ;
-        $reference = (null !== $processable->getMatch('escaped_reference'))
-            ? $processable->getMatch('escaped_reference')
-            : $processable->getMatch('reference')
-        ;
+        $property = $processable->getMatch('property');
+        $sequence = $processable->getMatch('sequence');
+        $reference = $processable->getMatch('escaped_reference') ?? $processable->getMatch('reference')       ;
         $this->checkEscapedReference($processable);
 
         if (strpos($reference, '*')) {
